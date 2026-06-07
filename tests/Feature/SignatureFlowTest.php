@@ -5,6 +5,7 @@ namespace Tests\Feature;
 use App\Mail\SignatureOtpMail;
 use App\Models\Document;
 use App\Models\SignatureEvent;
+use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Mail;
@@ -14,6 +15,15 @@ use Tests\TestCase;
 class SignatureFlowTest extends TestCase
 {
     use RefreshDatabase;
+
+    protected User $user;
+
+    protected function setUp(): void
+    {
+        parent::setUp();
+        $this->user = User::factory()->create();
+        $this->actingAs($this->user);
+    }
 
     private function pdfBytes(): string
     {

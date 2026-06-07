@@ -3,10 +3,16 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Document extends Model
 {
+    public function user(): BelongsTo
+    {
+        return $this->belongsTo(User::class);
+    }
+
     public function signatureEvents(): HasMany
     {
         return $this->hasMany(SignatureEvent::class);
@@ -18,6 +24,7 @@ class Document extends Model
     }
 
     protected $fillable = [
+        'user_id',
         'original_name',
         'source_format',
         'pdf_path',

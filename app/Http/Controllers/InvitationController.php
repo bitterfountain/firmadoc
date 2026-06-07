@@ -33,6 +33,8 @@ class InvitationController extends Controller
     /** Pagina de gestion de firmantes de un documento. */
     public function index(Document $document): View|RedirectResponse
     {
+        abort_unless($document->user_id === auth()->id(), 403);
+
         if (! $document->pdf_path) {
             return redirect()->route('documents.index')->with('error', 'El documento aun no esta listo.');
         }
@@ -45,6 +47,8 @@ class InvitationController extends Controller
     /** Anade un firmante y le envia la invitacion por email. */
     public function store(Request $request, Document $document): RedirectResponse
     {
+        abort_unless($document->user_id === auth()->id(), 403);
+
         $data = $request->validate([
             'name' => 'required|string|max:120',
             'email' => 'required|email|max:190',
@@ -73,6 +77,7 @@ class InvitationController extends Controller
     /** Elimina una invitacion pendiente. */
     public function destroy(Document $document, SignatureInvitation $invitation): RedirectResponse
     {
+        abort_unless($document->user_id === auth()->id(), 403);
         abort_unless($invitation->document_id === $document->id, 404);
 
         if ($invitation->status === 'signed') {

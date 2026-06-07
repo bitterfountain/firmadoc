@@ -3,6 +3,7 @@
 namespace Tests\Feature;
 
 use App\Models\Document;
+use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Storage;
@@ -11,6 +12,15 @@ use Tests\TestCase;
 class DocumentTest extends TestCase
 {
     use RefreshDatabase;
+
+    protected User $user;
+
+    protected function setUp(): void
+    {
+        parent::setUp();
+        $this->user = User::factory()->create();
+        $this->actingAs($this->user);
+    }
 
     /** PDF minimo valido (la cabecera %PDF basta para el detector de MIME). */
     private function pdfBytes(): string
@@ -53,6 +63,7 @@ class DocumentTest extends TestCase
     public function test_sign_page_requires_ready_document(): void
     {
         $doc = Document::create([
+            'user_id' => $this->user->id,
             'original_name' => 'x.pdf',
             'source_format' => 'pdf',
             'status' => 'failed',
@@ -69,6 +80,7 @@ class DocumentTest extends TestCase
             'source_format' => 'pdf',
             'status' => 'ready',
             'pdf_path' => 'documents/999/normalized.pdf',
+            'user_id' => $this->user->id,
         ]);
 
         Storage::fake('local');
@@ -79,6 +91,7 @@ class DocumentTest extends TestCase
     {
         Storage::fake('local');
         $doc = Document::create([
+            'user_id' => $this->user->id,
             'original_name' => 'x.pdf',
             'source_format' => 'pdf',
             'status' => 'ready',
@@ -88,5 +101,28 @@ class DocumentTest extends TestCase
             ->assertRedirect(route('documents.index'));
 
         $this->assertDatabaseMissing('documents', ['id' => $doc->id]);
+    }
+
+    public function test_cannot_access_other_users_document(): void
+    {
+        Storage::fake('local');
+        $other = User::factory()->create();
+        $doc = Document::create([
+            'user_id' => $other->id,
+            'original_name' => 'ajeno.pdf',
+            'source_format' => 'pdf',
+            'status' => 'ready',
+            'pdf_path' => 'documents/1/normalized.pdf',
+        ]);
+
+        // Autenticado como $this->user (de setUp), no es el dueño -> 403.
+        $this->get(route('documents.sign', $doc))->assertForbidden();
+        $this->get(route('documents.audit', $doc))->assertForbidden();
+        $this->get(route('documents.pdf', $doc))->assertForbidden();
+        $this->get(route('documents.download', $doc))->assertForbidden();
+        $this->delete(route('documents.destroy', $doc))->assertForbidden();
+
+        // Y no aparece en su listado.
+        $this->get(route('documents.index'))->assertOk()->assertDontSee('ajeno.pdf');
     }
 }

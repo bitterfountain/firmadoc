@@ -15,17 +15,28 @@ class DocumentController extends Controller
 {
     use HandlesDocumentFiles;
 
-    /** Listado + formulario de subida. */
+    /** Listado + formulario de subida (solo los documentos del usuario). */
     public function index(): View
     {
-        $documents = Document::withCount('signatureEvents')->latest()->get();
+        $documents = Document::where('user_id', auth()->id())
+            ->withCount('signatureEvents')
+            ->latest()
+            ->get();
 
         return view('documents.index', compact('documents'));
+    }
+
+    /** Aborta si el documento no pertenece al usuario autenticado. */
+    private function authorizeOwner(Document $document): void
+    {
+        abort_unless($document->user_id === auth()->id(), 403);
     }
 
     /** Panel de auditoria: historial de eventos de firma de un documento. */
     public function audit(Document $document): View
     {
+        $this->authorizeOwner($document);
+
         $events = $document->signatureEvents()->latest()->get();
 
         return view('documents.audit', compact('document', 'events'));
@@ -38,6 +49,7 @@ class DocumentController extends Controller
         $ext = strtolower($file->getClientOriginalExtension());
 
         $document = Document::create([
+            'user_id' => auth()->id(),
             'original_name' => $file->getClientOriginalName(),
             'source_format' => $ext,
             'status' => 'uploaded',
@@ -79,6 +91,8 @@ class DocumentController extends Controller
     /** Pantalla de firma de un documento ya convertido (o re-firma de uno firmado). */
     public function sign(Document $document): View|RedirectResponse
     {
+        $this->authorizeOwner($document);
+
         // Se puede firmar mientras exista el PDF normalizado, este "ready" o ya "signed".
         if (! $document->pdf_path || ! Storage::disk($this->docDisk())->exists($document->pdf_path)) {
             return redirect()
@@ -92,6 +106,8 @@ class DocumentController extends Controller
     /** Devuelve el PDF normalizado (para previsualizar con PDF.js). */
     public function pdf(Document $document)
     {
+        $this->authorizeOwner($document);
+
         abort_unless($document->pdf_path && Storage::disk($this->docDisk())->exists($document->pdf_path), 404);
 
         return Storage::disk($this->docDisk())->response($document->pdf_path, 'documento.pdf', [
@@ -102,6 +118,8 @@ class DocumentController extends Controller
     /** Descarga el PDF firmado (o el normalizado si aun no se firmo). */
     public function download(Document $document)
     {
+        $this->authorizeOwner($document);
+
         $path = $document->signed_path ?? $document->pdf_path;
         abort_unless($path && Storage::disk($this->docDisk())->exists($path), 404);
 
@@ -113,6 +131,8 @@ class DocumentController extends Controller
     /** Elimina el documento y sus archivos. */
     public function destroy(Document $document): RedirectResponse
     {
+        $this->authorizeOwner($document);
+
         Storage::disk($this->docDisk())->deleteDirectory("documents/{$document->id}");
         $document->delete();
 

@@ -23,6 +23,7 @@ class SignatureController extends Controller
     /** Paso 1: el firmante introduce nombre + email; enviamos un OTP. */
     public function requestOtp(Request $request, Document $document): JsonResponse
     {
+        abort_unless($document->user_id === auth()->id(), 403);
         abort_unless($document->isReadyToSign() || $document->status === 'signed', 404);
 
         $data = $request->validate([
@@ -53,6 +54,8 @@ class SignatureController extends Controller
     /** Paso 2: verificamos el OTP y devolvemos los datos de auditoria. */
     public function verifyOtp(Request $request, Document $document): JsonResponse
     {
+        abort_unless($document->user_id === auth()->id(), 403);
+
         $data = $request->validate([
             'event_id' => 'required|integer',
             'otp' => 'required|string',
@@ -111,6 +114,8 @@ class SignatureController extends Controller
     /** Paso 3: recibimos el PDF firmado (ya con la pagina-certificado) y cerramos. */
     public function finalize(Request $request, Document $document, PadesSigningService $pades): JsonResponse
     {
+        abort_unless($document->user_id === auth()->id(), 403);
+
         $data = $request->validate([
             'event_id' => 'required|integer',
             'signed' => 'required|file|mimes:pdf|max:' . (int) config('docsigner.max_upload_kb'),
