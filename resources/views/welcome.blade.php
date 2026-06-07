@@ -26,7 +26,28 @@
                     Sin cuenta. Sube, firma en el navegador y recibe el PDF.
                     <span class="text-faint">No se guarda nada en el servidor.</span>
                 </p>
-                <span class="mt-5 inline-flex items-center gap-1.5 text-sm font-semibold text-accent">
+
+                <span class="mt-4 inline-flex items-center gap-1.5 rounded-full bg-accent-soft px-3 py-1 text-[11px] font-semibold text-accent">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="size-3.5"><path d="M5 13l4 4L19 7"/></svg>
+                    Nivel 1 · Firma electrónica simple (eIDAS)
+                </span>
+
+                <p class="mt-4 eyebrow">Válida para</p>
+                <ul class="mt-2 space-y-1.5 text-sm text-muted">
+                    @foreach ([
+                        'Consentimientos y autorizaciones',
+                        'Recibís, albaranes y conformidades',
+                        'Contratos privados sencillos y NDAs',
+                        'Presupuestos y cartas de aceptación',
+                    ] as $item)
+                        <li class="flex items-start gap-2">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="mt-0.5 size-4 shrink-0 text-accent"><path d="M20 6 9 17l-5-5"/></svg>
+                            {{ $item }}
+                        </li>
+                    @endforeach
+                </ul>
+
+                <span class="mt-6 inline-flex items-center gap-1.5 text-sm font-semibold text-accent">
                     Firmar ahora
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" class="size-4 transition-transform group-hover:translate-x-1"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
                 </span>
@@ -41,13 +62,40 @@
                 </span>
                 <h2 class="mt-5 text-xl text-ink">Cuenta profesional</h2>
                 <p class="mt-1.5 text-sm leading-relaxed text-muted">
-                    Firma avanzada (PAdES criptográfico, multi-firmante) y tus documentos guardados y privados.
+                    Sello criptográfico (PAdES), multi-firmante y tus documentos guardados y privados.
                 </p>
-                <span class="mt-5 inline-flex items-center gap-1.5 text-sm font-semibold text-ink">
+
+                <span class="mt-4 inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-[11px] font-semibold text-ink" style="background:rgba(28,25,19,0.06)">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" class="size-3.5"><path d="M12 3l7 3v5c0 4.5-3 7.5-7 9-4-1.5-7-4.5-7-9V6z"/></svg>
+                    Niveles 2–3 · Avanzada / cualificada (PAdES · QES)
+                </span>
+
+                <p class="mt-4 eyebrow">Pensada para</p>
+                <ul class="mt-2 space-y-1.5 text-sm text-muted">
+                    @foreach ([
+                        'Contratos laborales y mercantiles',
+                        'Arrendamientos y acuerdos con terceros',
+                        'Facturas y documentos con valor probatorio reforzado',
+                        'Firma múltiple con sellado de tiempo (PAdES-T/LTA)',
+                    ] as $item)
+                        <li class="flex items-start gap-2">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="mt-0.5 size-4 shrink-0 text-ink"><path d="M20 6 9 17l-5-5"/></svg>
+                            {{ $item }}
+                        </li>
+                    @endforeach
+                </ul>
+
+                <span class="mt-6 inline-flex items-center gap-1.5 text-sm font-semibold text-ink">
                     Entrar
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" class="size-4 transition-transform group-hover:translate-x-1"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
                 </span>
             </a>
         </div>
+
+        <p class="mx-auto mt-7 max-w-2xl text-center text-xs leading-relaxed text-faint">
+            La <strong class="font-semibold text-muted">firma simple</strong> es válida y admisible para la mayoría de acuerdos privados.
+            Para máxima fuerza probatoria o cuando la ley exige forma reforzada, usa la
+            <strong class="font-semibold text-muted">firma avanzada o cualificada</strong>.
+        </p>
     </div>
 @endsection
