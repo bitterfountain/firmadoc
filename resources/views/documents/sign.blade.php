@@ -106,6 +106,16 @@
                     <input data-role="signer-email" type="email" placeholder="tu@email.com" autocomplete="email"
                            value="{{ $signerEmail }}" @if($signerEmail) readonly @endif class="input read-only:bg-paper/60">
                     <button data-action="send-code" type="button" class="btn btn-primary w-full">Enviar código</button>
+
+                    {{-- Solo Nivel 0 (firma rápida): alternativa sin email --}}
+                    <div data-role="quick-direct" class="hidden">
+                        <div class="my-1 flex items-center gap-3 text-[11px] uppercase tracking-wider text-faint">
+                            <span class="h-px flex-1" style="background:var(--color-line)"></span>
+                            o
+                            <span class="h-px flex-1" style="background:var(--color-line)"></span>
+                        </div>
+                        <button data-action="direct-download" type="button" class="btn btn-ghost mt-2 w-full">Descarga directa</button>
+                    </div>
                 </div>
 
                 {{-- Paso B: codigo OTP --}}

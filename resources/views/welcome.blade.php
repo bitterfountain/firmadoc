@@ -29,15 +29,16 @@
 
                 <span class="mt-4 inline-flex items-center gap-1.5 rounded-full bg-accent-soft px-3 py-1 text-[11px] font-semibold text-accent">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="size-3.5"><path d="M5 13l4 4L19 7"/></svg>
-                    Nivel 1 · Firma electrónica simple (eIDAS)
+                    Firma electrónica simple (eIDAS)
                 </span>
+                <p class="mt-2 text-[11px] leading-snug text-faint">Firma visual + sello de integridad SHA-256. Sin verificación de identidad.</p>
 
                 <p class="mt-4 eyebrow">Válida para</p>
                 <ul class="mt-2 space-y-1.5 text-sm text-muted">
                     @foreach ([
                         'Consentimientos y autorizaciones',
                         'Recibís, albaranes y conformidades',
-                        'Contratos privados sencillos y NDAs',
+                        'Formularios y hojas de firma/asistencia',
                         'Presupuestos y cartas de aceptación',
                     ] as $item)
                         <li class="flex items-start gap-2">
@@ -67,8 +68,9 @@
 
                 <span class="mt-4 inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-[11px] font-semibold text-ink" style="background:rgba(28,25,19,0.06)">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" class="size-3.5"><path d="M12 3l7 3v5c0 4.5-3 7.5-7 9-4-1.5-7-4.5-7-9V6z"/></svg>
-                    Niveles 2–3 · Avanzada / cualificada (PAdES · QES)
+                    Firma avanzada · PAdES
                 </span>
+                <p class="mt-2 text-[11px] leading-snug text-faint">Verificación por email, sello criptográfico y de tiempo. Cualificada (QES) al cargar un certificado cualificado.</p>
 
                 <p class="mt-4 eyebrow">Pensada para</p>
                 <ul class="mt-2 space-y-1.5 text-sm text-muted">

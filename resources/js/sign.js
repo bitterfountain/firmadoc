@@ -420,21 +420,23 @@ async function init(root) {
         applyBtn.textContent = '3 · Firmar documento';
         const modalTitle = modal.querySelector('h3');
         if (modalTitle) modalTitle.textContent = 'Firmar documento';
-        if (applyHint) applyHint.textContent = 'Firma sin registro. Opcional: deja tu email para recibir el PDF.';
-        if (dataHint) dataHint.textContent = 'Opcional: deja tu nombre y email (para que consten y recibir el PDF firmado).';
+        if (applyHint) applyHint.textContent = 'Firma sin registro, sin verificación de identidad.';
+        if (dataHint) dataHint.textContent = '¿Quieres recibir el PDF por email? Rellena tus datos. Si no, usa la descarga directa.';
         stepOtp?.remove();
         nameInput.placeholder = 'Nombre (opcional)';
         nameInput.removeAttribute('readonly');
-        emailInput.placeholder = 'Email para recibir el PDF (opcional)';
+        emailInput.placeholder = 'Tu email';
         emailInput.removeAttribute('readonly');
-        sendBtn.textContent = 'Firmar documento';
+        sendBtn.textContent = 'Firmar y enviar por email';
+        modal.querySelector('[data-role="quick-direct"]')?.classList.remove('hidden');
 
-        sendBtn.addEventListener('click', async (e) => {
-            e.target.disabled = true;
+        // Firma cliente (Nivel 0). withEmail decide si se entrega por email.
+        const doQuickSign = async (btn, withEmail) => {
+            btn.disabled = true;
             setModalStatus('Firmando e incrustando certificado...');
             try {
                 const name = nameInput.value.trim();
-                const email = emailInput.value.trim();
+                const email = withEmail ? emailInput.value.trim() : '';
                 const audit = await buildClientAudit(name, email);
                 const signedBytes = await buildSignedPdf(audit);
                 await uploadSigned(signedBytes, { signer_name: name, email, reference: audit.reference });
@@ -442,9 +444,20 @@ async function init(root) {
                 console.error(err);
                 setModalStatus(err.message, true);
             } finally {
-                e.target.disabled = false;
+                btn.disabled = false;
             }
+        };
+
+        // Boton 1: solo envia el formulario de nombre/email.
+        sendBtn.addEventListener('click', (e) => {
+            if (!emailInput.value.trim()) {
+                return setModalStatus('Introduce un email, o usa “Descarga directa”.', true);
+            }
+            doQuickSign(e.target, true);
         });
+
+        // Boton 2: firma y descarga sin email.
+        modal.querySelector('[data-action="direct-download"]')?.addEventListener('click', (e) => doQuickSign(e.target, false));
     }
 
     // Audit construido en el cliente para Nivel 0 (sin servidor): hash + fecha + referencia.
