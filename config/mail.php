@@ -65,6 +65,16 @@ return [
             'transport' => 'resend',
         ],
 
+        // Relay HTTP propio ("Resend casero"): envia por HTTPS a un script PHP
+        // alojado en un servidor que SI puede mandar SMTP (el droplet de DO lo
+        // tiene bloqueado). Ver App\Mail\Transport\RelayTransport y mailrelay/.
+        'relay' => [
+            'transport' => 'relay',
+            'url' => env('MAIL_RELAY_URL'),
+            'token' => env('MAIL_RELAY_TOKEN'),
+            'timeout' => (int) env('MAIL_RELAY_TIMEOUT', 30),
+        ],
+
         'sendmail' => [
             'transport' => 'sendmail',
             'path' => env('MAIL_SENDMAIL_PATH', '/usr/sbin/sendmail -bs -i'),
