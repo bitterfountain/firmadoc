@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Concerns\HandlesDocumentFiles;
 use App\Http\Requests\StoreDocumentRequest;
+use App\Models\AccountInvite;
 use App\Models\Document;
 use App\Services\PdfConversionService;
 use Illuminate\Http\RedirectResponse;
@@ -23,7 +24,11 @@ class DocumentController extends Controller
             ->latest()
             ->get();
 
-        return view('documents.index', compact('documents'));
+        $invites = auth()->user()->is_admin
+            ? AccountInvite::latest()->take(10)->get()
+            : collect();
+
+        return view('documents.index', compact('documents', 'invites'));
     }
 
     /** Aborta si el documento no pertenece al usuario autenticado. */

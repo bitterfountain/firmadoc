@@ -17,25 +17,45 @@ class MakeUser extends Command
     protected $signature = 'firmadoc:user
                             {email : Email del usuario}
                             {--name= : Nombre (por defecto, la parte local del email)}
-                            {--password= : Contrasena (si se omite, se genera una aleatoria)}';
+                            {--password= : Contrasena (si se omite, se genera una aleatoria)}
+                            {--admin : Marca la cuenta como administrador (puede generar invitaciones)}';
 
     protected $description = 'Crea o actualiza un usuario de FirmaDoc';
 
     public function handle(): int
     {
         $email = strtolower(trim($this->argument('email')));
-        $name = $this->option('name') ?: Str::of($email)->before('@')->ucfirst();
-        $password = $this->option('password') ?: Str::password(14);
+        $existing = User::where('email', $email)->first();
 
-        $user = User::updateOrCreate(
-            ['email' => $email],
-            ['name' => $name, 'password' => Hash::make($password)],
-        );
+        // No sobrescribimos nombre/contraseña de un usuario existente salvo que se indiquen.
+        $attrs = [];
+        $generated = null;
+
+        if ($this->option('name')) {
+            $attrs['name'] = $this->option('name');
+        } elseif (! $existing) {
+            $attrs['name'] = (string) Str::of($email)->before('@')->ucfirst();
+        }
+
+        if ($this->option('password')) {
+            $attrs['password'] = Hash::make($this->option('password'));
+        } elseif (! $existing) {
+            $generated = Str::password(14);
+            $attrs['password'] = Hash::make($generated);
+        }
+
+        if ($this->option('admin')) {
+            $attrs['is_admin'] = true;
+        }
+
+        $user = User::updateOrCreate(['email' => $email], $attrs);
 
         $this->info($user->wasRecentlyCreated ? "Usuario creado: {$email}" : "Usuario actualizado: {$email}");
-
-        if (! $this->option('password')) {
-            $this->line('Contrasena generada: ' . $password);
+        if ($this->option('admin')) {
+            $this->line('Marcado como administrador.');
+        }
+        if ($generated !== null) {
+            $this->line('Contrasena generada: ' . $generated);
         }
 
         return self::SUCCESS;

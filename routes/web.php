@@ -1,11 +1,14 @@
 <?php
 
+use App\Http\Controllers\AdminInviteController;
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\DocumentController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\InvitationController;
+use App\Http\Controllers\InviteController;
 use App\Http\Controllers\QuickSignController;
 use App\Http\Controllers\SignatureController;
+use App\Http\Middleware\EnsureProActive;
 use Illuminate\Support\Facades\Route;
 
 // Portada publica (dos puertas: firma rapida / entrar).
@@ -14,6 +17,12 @@ Route::get('/', [HomeController::class, 'index'])->name('home');
 // Paginas legales (publicas).
 Route::view('/aviso-legal', 'legal.aviso')->name('legal.aviso');
 Route::view('/privacidad', 'legal.privacidad')->name('legal.privacy');
+
+// Invitaciones de un solo uso -> cuenta profesional gratis (publico).
+Route::controller(InviteController::class)->group(function () {
+    Route::get('/invitacion/{token}', 'show')->whereAlphaNumeric('token')->name('invite.show');
+    Route::post('/invitacion/{token}', 'register')->whereAlphaNumeric('token')->middleware('throttle:10,1')->name('invite.register');
+});
 
 // --- Autenticacion (registro cerrado: usuarios via `php artisan firmadoc:user`) ---
 Route::middleware('guest')->group(function () {
@@ -32,8 +41,10 @@ Route::controller(QuickSignController::class)->prefix('firmar')->name('quick.')-
     Route::get('/{eid}/descargar', 'download')->whereAlphaNumeric('eid')->name('download');
 });
 
-// --- Zona privada del propietario (requiere login) ---
-Route::middleware('auth')->group(function () {
+// --- Zona privada del propietario (requiere login + cuenta Pro vigente) ---
+Route::middleware(['auth', EnsureProActive::class])->group(function () {
+    Route::post('/invitaciones', [AdminInviteController::class, 'store'])->name('invites.store');
+
     Route::controller(DocumentController::class)->prefix('documents')->name('documents.')->group(function () {
         Route::get('/', 'index')->name('index');
         Route::post('/', 'store')->name('store');

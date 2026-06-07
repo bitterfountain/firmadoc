@@ -98,4 +98,46 @@
             </div>
         </section>
     </div>
+
+    @if (auth()->user()->is_admin)
+        <section class="mt-10">
+            <div class="flex flex-wrap items-baseline justify-between gap-3">
+                <div>
+                    <h2 class="text-xl text-ink">Invitaciones Pro</h2>
+                    <p class="mt-0.5 text-sm text-muted">Enlaces de un solo uso que dan 1 año de cuenta profesional gratis.</p>
+                </div>
+                <form method="POST" action="{{ route('invites.store') }}">
+                    @csrf
+                    <button class="btn btn-primary px-4 py-2 text-sm">Generar enlace</button>
+                </form>
+            </div>
+
+            @if (session('invite_url'))
+                <div class="card mt-4 p-4" style="border-color:var(--color-accent)">
+                    <p class="text-sm font-semibold text-accent">Enlace creado — cópialo y compártelo (un solo uso):</p>
+                    <input readonly onclick="this.select()" value="{{ session('invite_url') }}"
+                           class="input mt-2 font-mono text-xs">
+                </div>
+            @endif
+
+            <div class="mt-4 space-y-2">
+                @forelse ($invites as $inv)
+                    @php
+                        [$txt, $col, $bg] = $inv->used_at
+                            ? ['Usado', 'var(--color-muted)', 'rgba(28,25,19,0.05)']
+                            : (! $inv->isUsable()
+                                ? ['Caducado', 'var(--color-danger)', 'var(--color-danger-soft)']
+                                : ['Activo', 'var(--color-accent)', 'var(--color-accent-soft)']);
+                    @endphp
+                    <div class="card flex items-center justify-between gap-3 p-3">
+                        <input readonly onclick="this.select()" value="{{ $inv->url() }}"
+                               class="min-w-0 flex-1 truncate bg-transparent font-mono text-xs text-muted outline-none">
+                        <span class="shrink-0 rounded-full px-2.5 py-0.5 text-[11px] font-semibold" style="color:{{ $col }};background:{{ $bg }}">{{ $txt }}</span>
+                    </div>
+                @empty
+                    <p class="text-sm text-faint">Aún no has generado invitaciones.</p>
+                @endforelse
+            </div>
+        </section>
+    @endif
 @endsection

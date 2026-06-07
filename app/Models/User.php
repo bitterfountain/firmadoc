@@ -22,7 +22,15 @@ class User extends Authenticatable
         'name',
         'email',
         'password',
+        'pro_until',
+        'is_admin',
     ];
+
+    /** Cuenta profesional activa: sin caducidad (NULL) o aún vigente. */
+    public function proActive(): bool
+    {
+        return $this->pro_until === null || $this->pro_until->isFuture();
+    }
 
     /**
      * The attributes that should be hidden for serialization.
@@ -44,6 +52,8 @@ class User extends Authenticatable
         return [
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
+            'pro_until' => 'datetime',
+            'is_admin' => 'boolean',
         ];
     }
 }
