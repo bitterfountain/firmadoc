@@ -28,9 +28,14 @@ class DocumentTest extends TestCase
         return "%PDF-1.4\n1 0 obj<</Type/Catalog>>endobj\ntrailer<</Root 1 0 R>>\n%%EOF\n";
     }
 
-    public function test_home_page_loads(): void
+    public function test_documents_index_loads(): void
     {
-        $this->get('/')->assertOk()->assertSee('Subir documento');
+        $this->get(route('documents.index'))->assertOk()->assertSee('Subir documento');
+    }
+
+    public function test_home_redirects_authenticated_to_documents(): void
+    {
+        $this->get('/')->assertRedirect(route('documents.index'));
     }
 
     public function test_upload_pdf_creates_and_normalizes_document(): void

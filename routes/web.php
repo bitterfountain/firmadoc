@@ -2,9 +2,14 @@
 
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\DocumentController;
+use App\Http\Controllers\HomeController;
 use App\Http\Controllers\InvitationController;
+use App\Http\Controllers\QuickSignController;
 use App\Http\Controllers\SignatureController;
 use Illuminate\Support\Facades\Route;
+
+// Portada publica (dos puertas: firma rapida / entrar).
+Route::get('/', [HomeController::class, 'index'])->name('home');
 
 // --- Autenticacion (registro cerrado: usuarios via `php artisan firmadoc:user`) ---
 Route::middleware('guest')->group(function () {
@@ -13,11 +18,22 @@ Route::middleware('guest')->group(function () {
 });
 Route::post('/logout', [LoginController::class, 'logout'])->middleware('auth')->name('logout');
 
+// --- Firma rapida ANONIMA y efimera (sin login) ---
+Route::controller(QuickSignController::class)->prefix('firmar')->name('quick.')->group(function () {
+    Route::get('/', 'start')->name('start');
+    Route::post('/', 'upload')->middleware('throttle:10,1')->name('upload');
+    Route::get('/{eid}', 'sign')->whereAlphaNumeric('eid')->name('sign');
+    Route::get('/{eid}/pdf', 'pdf')->whereAlphaNumeric('eid')->name('pdf');
+    Route::post('/{eid}/otp', 'otp')->whereAlphaNumeric('eid')->middleware('throttle:6,1')->name('otp');
+    Route::post('/{eid}/otp/verify', 'otpVerify')->whereAlphaNumeric('eid')->middleware('throttle:10,1')->name('otpVerify');
+    Route::post('/{eid}/signed', 'finalize')->whereAlphaNumeric('eid')->name('finalize');
+    Route::get('/{eid}/descargar', 'download')->whereAlphaNumeric('eid')->name('download');
+});
+
 // --- Zona privada del propietario (requiere login) ---
 Route::middleware('auth')->group(function () {
-    Route::get('/', [DocumentController::class, 'index'])->name('documents.index');
-
     Route::controller(DocumentController::class)->prefix('documents')->name('documents.')->group(function () {
+        Route::get('/', 'index')->name('index');
         Route::post('/', 'store')->name('store');
         Route::get('/{document}/sign', 'sign')->name('sign');
         Route::get('/{document}/audit', 'audit')->name('audit');
