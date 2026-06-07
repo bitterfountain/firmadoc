@@ -21,10 +21,11 @@
                     <strong class="text-ink">firmadoc.leukasoft.com</strong> (en adelante, «el Sitio» o «FirmaDoc»):
                 </p>
                 <ul class="mt-2 space-y-1">
-                    <li><strong class="text-ink">Titular:</strong> [COMPLETAR nombre y apellidos o razón social]</li>
-                    <li><strong class="text-ink">NIF/DNI:</strong> [COMPLETAR]</li>
-                    <li><strong class="text-ink">Domicilio:</strong> [COMPLETAR]</li>
-                    <li><strong class="text-ink">Correo de contacto:</strong> [COMPLETAR, p. ej. contacto@leukasoft.com]</li>
+                    <li><strong class="text-ink">Titular:</strong> Antonio Sánchez Fernández</li>
+                    <li><strong class="text-ink">NIF:</strong> 33499597M</li>
+                    <li><strong class="text-ink">Domicilio:</strong> C/ María García Ferrández 30, Bajo Izq, 03201 Elche (Alicante)</li>
+                    <li><strong class="text-ink">Teléfono:</strong> 651 189 269</li>
+                    <li><strong class="text-ink">Correo de contacto:</strong> info@leukasoft.com</li>
                 </ul>
             </section>
 

@@ -17,10 +17,10 @@
             <section>
                 <h2 class="text-lg text-ink">1. Responsable del tratamiento</h2>
                 <ul class="mt-2 space-y-1">
-                    <li><strong class="text-ink">Responsable:</strong> [COMPLETAR nombre o razón social]</li>
-                    <li><strong class="text-ink">NIF/DNI:</strong> [COMPLETAR]</li>
-                    <li><strong class="text-ink">Domicilio:</strong> [COMPLETAR]</li>
-                    <li><strong class="text-ink">Contacto:</strong> [COMPLETAR, p. ej. privacidad@leukasoft.com]</li>
+                    <li><strong class="text-ink">Responsable:</strong> Antonio Sánchez Fernández</li>
+                    <li><strong class="text-ink">NIF:</strong> 33499597M</li>
+                    <li><strong class="text-ink">Domicilio:</strong> C/ María García Ferrández 30, Bajo Izq, 03201 Elche (Alicante)</li>
+                    <li><strong class="text-ink">Contacto:</strong> info@leukasoft.com</li>
                 </ul>
             </section>
 
@@ -66,15 +66,16 @@
                 <p class="mt-2">No vendemos tus datos. Para prestar el servicio nos apoyamos en:</p>
                 <ul class="mt-2 space-y-1">
                     <li><strong class="text-ink">DigitalOcean</strong> — alojamiento, base de datos y almacenamiento de archivos, en centros de datos de la <strong class="text-ink">Unión Europea</strong> (Ámsterdam).</li>
-                    <li><strong class="text-ink">Proveedor de correo</strong> para el envío de emails (entrega del PDF, avisos). Este envío puede implicar tratamiento por un proveedor situado <strong class="text-ink">fuera del EEE</strong> (EE. UU.), con las garantías adecuadas (cláusulas contractuales tipo y/o marco de adecuación UE-EE. UU.). [COMPLETAR proveedor concreto]</li>
+                    <li><strong class="text-ink">Servidor de correo propio</strong> (dominio leukasoft.com) para el envío de emails, ubicado en la <strong class="text-ink">Unión Europea</strong>.</li>
                 </ul>
             </section>
 
             <section>
                 <h2 class="text-lg text-ink">6. Transferencias internacionales</h2>
                 <p class="mt-2">
-                    Cuando un proveedor trate datos fuera del Espacio Económico Europeo, se garantiza un nivel de protección adecuado
-                    mediante los mecanismos previstos en el RGPD (decisión de adecuación o cláusulas contractuales tipo).
+                    Los datos se tratan en servidores ubicados en la <strong class="text-ink">Unión Europea</strong>. No se realizan
+                    transferencias internacionales fuera del Espacio Económico Europeo. Si en el futuro fuera necesario recurrir a un
+                    proveedor fuera del EEE, se garantizaría un nivel de protección adecuado mediante los mecanismos previstos en el RGPD.
                 </p>
             </section>
 
@@ -82,7 +83,7 @@
                 <h2 class="text-lg text-ink">7. Tus derechos</h2>
                 <p class="mt-2">
                     Puedes ejercer tus derechos de <strong class="text-ink">acceso, rectificación, supresión, oposición, limitación y
-                    portabilidad</strong> escribiendo a [COMPLETAR email de contacto]. Si consideras que tus datos no se tratan
+                    portabilidad</strong> escribiendo a info@leukasoft.com. Si consideras que tus datos no se tratan
                     correctamente, puedes reclamar ante la <strong class="text-ink">Agencia Española de Protección de Datos</strong>
                     (www.aepd.es).
                 </p>
