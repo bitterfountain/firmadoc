@@ -119,7 +119,7 @@ async function init(root) {
     // Construye el elemento de una firma: caja + imagen + handles + boton borrar.
     function createZoneEl(sig) {
         const el = document.createElement('div');
-        el.className = 'absolute border-2 border-dashed border-indigo-400 bg-indigo-500/5 cursor-move touch-none';
+        el.className = 'absolute border-2 border-dashed border-accent bg-[rgba(21,87,65,0.07)] cursor-move touch-none';
         el.dataset.id = sig.id;
         setElRect(el, sig);
 
@@ -133,14 +133,14 @@ async function init(root) {
         del.type = 'button';
         del.textContent = '×';
         del.title = 'Quitar esta firma';
-        del.className = 'absolute -top-3 -right-3 z-10 grid size-7 place-items-center rounded-full bg-rose-500 text-lg leading-none text-white shadow ring-2 ring-white hover:bg-rose-600';
+        del.className = 'absolute -top-3 -right-3 z-10 grid size-7 place-items-center rounded-full bg-[var(--color-danger)] text-lg leading-none text-white shadow ring-2 ring-white hover:opacity-90';
         del.addEventListener('pointerdown', (e) => e.stopPropagation());
         del.addEventListener('click', (e) => { e.stopPropagation(); removeSignature(sig.id); });
         el.appendChild(del);
 
         for (const [name, cls] of CORNERS) {
             const h = document.createElement('div');
-            h.className = `absolute size-3 rounded-full border border-white bg-indigo-500 ${cls}`;
+            h.className = `absolute size-3 rounded-full border border-white bg-[var(--color-accent)] ${cls}`;
             h.dataset.corner = name;
             h.addEventListener('pointerdown', (e) => { e.stopPropagation(); startInteraction(e, 'resize', sig, name); });
             el.appendChild(h);
@@ -178,12 +178,12 @@ async function init(root) {
         const n = signatures.length;
         if (n === 0) {
             zoneInfo.textContent = 'Sin firmas colocadas.';
-            zoneInfo.className = 'mt-2 text-xs text-slate-400';
+            zoneInfo.className = 'mt-2 text-xs text-faint';
             return;
         }
         const here = signatures.filter((s) => s.page === currentPage).length;
         zoneInfo.textContent = `${n} firma(s) en total${here ? ` · ${here} en esta pagina` : ''}.`;
-        zoneInfo.className = 'mt-2 text-xs font-medium text-indigo-600';
+        zoneInfo.className = 'mt-2 text-xs font-semibold text-accent';
     }
 
     function startInteraction(e, mode, sig, corner = null) {
@@ -202,7 +202,7 @@ async function init(root) {
         lastActive = sig;
         for (const s of signatures) {
             s._el?.classList.toggle('ring-2', s === sig);
-            s._el?.classList.toggle('ring-indigo-400', s === sig);
+            s._el?.classList.toggle('ring-accent', s === sig);
         }
     }
 
@@ -317,7 +317,7 @@ async function init(root) {
 
     const setModalStatus = (msg, isError = false) => {
         modalStatus.textContent = msg;
-        modalStatus.className = `mt-3 text-center text-xs ${isError ? 'text-rose-500' : 'text-slate-400'}`;
+        modalStatus.className = `mt-3 text-center text-xs ${isError ? 'text-[var(--color-danger)]' : 'text-faint'}`;
     };
     const openModal = () => {
         stepData.classList.remove('hidden');
@@ -530,7 +530,7 @@ async function init(root) {
 
     function setStatus(msg, isError = false) {
         statusEl.textContent = msg;
-        statusEl.className = `text-center text-xs ${isError ? 'text-rose-500' : 'text-slate-400'}`;
+        statusEl.className = `text-center text-xs ${isError ? 'text-[var(--color-danger)]' : 'text-faint'}`;
     }
 
     // Primer render

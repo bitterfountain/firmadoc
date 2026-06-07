@@ -3,32 +3,50 @@
 @section('title', 'FirmaDoc · Firma de documentos')
 
 @section('content')
-    <div class="mx-auto mt-8 max-w-3xl text-center">
-        <h1 class="text-2xl font-bold text-slate-900">Firma documentos online</h1>
-        <p class="mt-2 text-slate-500">Elige cómo quieres firmar.</p>
+    <div class="mx-auto mt-6 max-w-3xl">
+        <p class="eyebrow">Firma electrónica</p>
+        <h1 class="mt-3 text-4xl leading-[1.05] text-ink sm:text-5xl">
+            Firma documentos<br><em class="font-normal italic text-accent">con elegancia.</em>
+        </h1>
+        <p class="mt-4 max-w-xl text-[15px] leading-relaxed text-muted">
+            Sube, firma y comparte. Sin fricción para lo cotidiano; con garantías criptográficas
+            cuando de verdad importan.
+        </p>
 
-        <div class="mt-8 grid gap-4 sm:grid-cols-2">
+        <div class="mt-10 grid gap-5 sm:grid-cols-2">
             {{-- Puerta 1: firma rápida anónima --}}
-            <a href="{{ route('quick.start') }}"
-               class="group rounded-2xl border border-slate-200 bg-white p-6 text-left shadow-sm transition hover:border-indigo-300 hover:shadow">
-                <div class="grid size-10 place-items-center rounded-xl bg-indigo-600 text-white">⚡</div>
-                <h2 class="mt-4 text-lg font-semibold text-slate-900">Firma rápida</h2>
-                <p class="mt-1 text-sm text-slate-500">
-                    Sin cuenta. Sube, firma con verificación por email y recibe el PDF.
-                    <span class="text-slate-400">No se guarda nada en el servidor.</span>
+            <a href="{{ route('quick.start') }}" class="card group relative overflow-hidden p-6 transition-transform duration-200 hover:-translate-y-0.5">
+                <span class="grid size-11 place-items-center rounded-xl bg-accent-soft text-accent">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="size-6">
+                        <path d="M13 2L4.5 13.5H11l-1 8.5L19.5 10H13z"/>
+                    </svg>
+                </span>
+                <h2 class="mt-5 text-xl text-ink">Firma rápida</h2>
+                <p class="mt-1.5 text-sm leading-relaxed text-muted">
+                    Sin cuenta. Sube, firma en el navegador y recibe el PDF.
+                    <span class="text-faint">No se guarda nada en el servidor.</span>
                 </p>
-                <span class="mt-4 inline-block text-sm font-semibold text-indigo-600 group-hover:underline">Firmar ahora →</span>
+                <span class="mt-5 inline-flex items-center gap-1.5 text-sm font-semibold text-accent">
+                    Firmar ahora
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" class="size-4 transition-transform group-hover:translate-x-1"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+                </span>
             </a>
 
             {{-- Puerta 2: cuenta --}}
-            <a href="{{ route('login') }}"
-               class="group rounded-2xl border border-slate-200 bg-white p-6 text-left shadow-sm transition hover:border-indigo-300 hover:shadow">
-                <div class="grid size-10 place-items-center rounded-xl bg-slate-800 text-white">🔒</div>
-                <h2 class="mt-4 text-lg font-semibold text-slate-900">Entrar</h2>
-                <p class="mt-1 text-sm text-slate-500">
-                    Para firma avanzada (PAdES criptográfico, multi-firmante) y guardar tus documentos.
+            <a href="{{ route('login') }}" class="card group relative overflow-hidden p-6 transition-transform duration-200 hover:-translate-y-0.5">
+                <span class="grid size-11 place-items-center rounded-xl text-ink" style="background:rgba(28,25,19,0.06)">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="size-6">
+                        <path d="M12 3l7 3v5c0 4.5-3 7.5-7 9-4-1.5-7-4.5-7-9V6z"/><path d="M9.5 12l1.8 1.8L15 10"/>
+                    </svg>
+                </span>
+                <h2 class="mt-5 text-xl text-ink">Cuenta profesional</h2>
+                <p class="mt-1.5 text-sm leading-relaxed text-muted">
+                    Firma avanzada (PAdES criptográfico, multi-firmante) y tus documentos guardados y privados.
                 </p>
-                <span class="mt-4 inline-block text-sm font-semibold text-slate-700 group-hover:underline">Acceder →</span>
+                <span class="mt-5 inline-flex items-center gap-1.5 text-sm font-semibold text-ink">
+                    Entrar
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" class="size-4 transition-transform group-hover:translate-x-1"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+                </span>
             </a>
         </div>
     </div>

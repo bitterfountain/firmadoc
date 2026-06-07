@@ -6,6 +6,111 @@
 @source '../**/*.js';
 
 @theme {
-    --font-sans: 'Instrument Sans', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji',
-        'Segoe UI Symbol', 'Noto Color Emoji';
+    /* Tipografia con caracter: serif optica para titulos, grotesca limpia para texto */
+    --font-sans: 'Hanken Grotesk', ui-sans-serif, system-ui, sans-serif;
+    --font-display: 'Fraunces', ui-serif, Georgia, serif;
+
+    /* Paleta "pluma sobre papel": papel calido, tinta, un unico acento verde-tinta */
+    --color-paper: #f5f2ea;
+    --color-surface: #fffdf8;
+    --color-ink: #1c1913;
+    --color-muted: #6f6657;
+    --color-faint: #9b9384;
+    --color-line: #e6dfd0;
+    --color-line-strong: #d6cdb8;
+
+    --color-accent: #155741;
+    --color-accent-hover: #0f4231;
+    --color-accent-soft: #e6efe9;
+
+    --color-danger: #9a3324;
+    --color-danger-soft: #f3e7e2;
+    --color-gold: #b08738;
+}
+
+@layer base {
+    body {
+        background-color: var(--color-paper);
+        color: var(--color-ink);
+        font-family: var(--font-sans);
+        /* Atmosfera: vetas de luz muy sutiles sobre el papel */
+        background-image:
+            radial-gradient(60rem 40rem at 80% -10%, rgba(21, 87, 65, 0.05), transparent 60%),
+            radial-gradient(50rem 40rem at -10% 110%, rgba(176, 135, 56, 0.05), transparent 60%);
+        background-attachment: fixed;
+    }
+
+    h1, h2, h3, h4 {
+        font-family: var(--font-display);
+        font-optical-sizing: auto;
+        letter-spacing: -0.015em;
+    }
+
+    ::selection {
+        background: var(--color-accent);
+        color: var(--color-paper);
+    }
+}
+
+@layer components {
+    .btn {
+        @apply inline-flex items-center justify-center gap-2 rounded-full px-5 py-2.5 text-sm font-semibold transition-colors duration-200;
+    }
+    .btn-primary {
+        background-color: var(--color-accent);
+        color: var(--color-paper);
+    }
+    .btn-primary:hover { background-color: var(--color-accent-hover); }
+    .btn-primary:disabled { opacity: 0.5; cursor: not-allowed; }
+
+    .btn-ghost {
+        border: 1px solid var(--color-line-strong);
+        color: var(--color-ink);
+        background-color: transparent;
+    }
+    .btn-ghost:hover { background-color: rgba(28, 25, 19, 0.04); }
+
+    .btn-danger {
+        border: 1px solid var(--color-danger-soft);
+        color: var(--color-danger);
+        background-color: transparent;
+    }
+    .btn-danger:hover { background-color: var(--color-danger-soft); }
+
+    .card {
+        background-color: var(--color-surface);
+        border: 1px solid var(--color-line);
+        border-radius: 1rem;
+        box-shadow: 0 1px 2px rgba(28, 25, 19, 0.04), 0 12px 30px -24px rgba(28, 25, 19, 0.25);
+    }
+
+    .input {
+        @apply w-full rounded-xl px-3.5 py-2.5 text-sm;
+        background-color: #fff;
+        border: 1px solid var(--color-line-strong);
+        color: var(--color-ink);
+        transition: border-color 0.15s, box-shadow 0.15s;
+    }
+    .input::placeholder { color: var(--color-faint); }
+    .input:focus {
+        outline: none;
+        border-color: var(--color-accent);
+        box-shadow: 0 0 0 3px var(--color-accent-soft);
+    }
+
+    /* Marca: monograma en "tinta" */
+    .brand-mark {
+        @apply grid place-items-center rounded-xl;
+        background-color: var(--color-ink);
+        color: var(--color-paper);
+    }
+
+    .eyebrow {
+        font-family: var(--font-sans);
+        text-transform: uppercase;
+        letter-spacing: 0.22em;
+        font-size: 0.68rem;
+        font-weight: 600;
+        color: var(--color-faint);
+    }
 }

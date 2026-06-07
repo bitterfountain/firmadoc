@@ -1,76 +1,77 @@
 @extends('layouts.app')
 
-@section('title', 'Auditoria · FirmaDoc')
+@section('title', 'Auditoría · FirmaDoc')
 
 @section('content')
-    <div class="mb-4">
-        <a href="{{ route('documents.index') }}" class="text-sm text-slate-500 hover:text-slate-700">&larr; Volver</a>
-        <h1 class="text-lg font-semibold text-slate-900">Auditoria de firma</h1>
-        <p class="text-sm text-slate-500">{{ $document->original_name }}</p>
+    <div class="mb-5">
+        <a href="{{ route('documents.index') }}" class="inline-flex items-center gap-1.5 text-sm text-muted transition-colors hover:text-ink">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" class="size-4"><path d="M19 12H5M11 18l-6-6 6-6"/></svg>
+            Volver
+        </a>
+        <h1 class="mt-1 text-xl text-ink">Auditoría de firma</h1>
+        <p class="text-sm text-muted">{{ $document->original_name }}</p>
     </div>
 
     @php
-        $statusBadge = fn (string $s) => match ($s) {
-            'completed' => 'bg-emerald-100 text-emerald-700',
-            'verified' => 'bg-indigo-100 text-indigo-700',
-            'expired' => 'bg-rose-100 text-rose-700',
-            default => 'bg-slate-100 text-slate-600',
+        $statusStyle = fn (string $s) => match ($s) {
+            'completed' => 'color:var(--color-accent);background:var(--color-accent-soft)',
+            'verified' => 'color:var(--color-ink);background:rgba(28,25,19,0.06)',
+            'expired' => 'color:var(--color-danger);background:var(--color-danger-soft)',
+            default => 'color:var(--color-muted);background:rgba(28,25,19,0.05)',
         };
     @endphp
 
     @forelse ($events as $event)
-        <div class="mb-4 rounded-xl border border-slate-200 bg-white p-5">
-            <div class="flex flex-wrap items-center justify-between gap-2 border-b border-slate-100 pb-3">
-                <div>
-                    <span class="font-mono text-sm font-semibold text-slate-900">{{ $event->reference }}</span>
-                    <span class="ml-2 rounded px-2 py-0.5 text-[11px] font-semibold {{ $statusBadge($event->status) }}">
-                        {{ ucfirst($event->status) }}
-                    </span>
+        <div class="card mb-4 p-6">
+            <div class="flex flex-wrap items-center justify-between gap-2 border-b border-line pb-3">
+                <div class="flex items-center gap-2">
+                    <span class="font-mono text-sm font-semibold text-ink">{{ $event->reference }}</span>
+                    <span class="rounded-full px-2.5 py-0.5 text-[11px] font-semibold" style="{{ $statusStyle($event->status) }}">{{ ucfirst($event->status) }}</span>
                 </div>
-                <div class="flex gap-2">
+                <div class="flex flex-wrap gap-2">
                     @if ($event->pades_applied)
-                        <span class="rounded bg-violet-100 px-2 py-0.5 text-[11px] font-semibold text-violet-700">PAdES · sellado criptografico</span>
+                        <span class="rounded-full px-2.5 py-0.5 text-[11px] font-semibold" style="color:var(--color-gold);background:rgba(176,135,56,0.12)">PAdES · sellado criptográfico</span>
                     @endif
                     @if ($event->verified_at)
-                        <span class="rounded bg-emerald-50 px-2 py-0.5 text-[11px] font-semibold text-emerald-700">Identidad verificada</span>
+                        <span class="rounded-full px-2.5 py-0.5 text-[11px] font-semibold" style="color:var(--color-accent);background:var(--color-accent-soft)">Identidad verificada</span>
                     @endif
                 </div>
             </div>
 
-            <dl class="mt-3 grid grid-cols-1 gap-x-6 gap-y-3 text-sm sm:grid-cols-2">
+            <dl class="mt-4 grid grid-cols-1 gap-x-6 gap-y-4 text-sm sm:grid-cols-2">
                 <div>
-                    <dt class="text-xs font-semibold uppercase text-slate-400">Firmante</dt>
-                    <dd class="text-slate-800">{{ $event->signer_name }}</dd>
+                    <dt class="eyebrow">Firmante</dt>
+                    <dd class="mt-0.5 text-ink">{{ $event->signer_name }}</dd>
                 </div>
                 <div>
-                    <dt class="text-xs font-semibold uppercase text-slate-400">Email verificado</dt>
-                    <dd class="text-slate-800">{{ $event->signer_email }}</dd>
+                    <dt class="eyebrow">Email verificado</dt>
+                    <dd class="mt-0.5 text-ink">{{ $event->signer_email }}</dd>
                 </div>
                 <div>
-                    <dt class="text-xs font-semibold uppercase text-slate-400">Fecha de verificacion</dt>
-                    <dd class="text-slate-800">{{ $event->verified_at?->format('d/m/Y H:i:s') ?? '—' }} UTC</dd>
+                    <dt class="eyebrow">Fecha de verificación</dt>
+                    <dd class="mt-0.5 text-ink">{{ $event->verified_at?->format('d/m/Y H:i:s') ?? '—' }} UTC</dd>
                 </div>
                 <div>
-                    <dt class="text-xs font-semibold uppercase text-slate-400">Direccion IP</dt>
-                    <dd class="text-slate-800">{{ $event->ip_address ?? '—' }}</dd>
+                    <dt class="eyebrow">Dirección IP</dt>
+                    <dd class="mt-0.5 text-ink">{{ $event->ip_address ?? '—' }}</dd>
                 </div>
                 <div class="sm:col-span-2">
-                    <dt class="text-xs font-semibold uppercase text-slate-400">Navegador</dt>
-                    <dd class="truncate text-slate-600" title="{{ $event->user_agent }}">{{ $event->user_agent ?? '—' }}</dd>
+                    <dt class="eyebrow">Navegador</dt>
+                    <dd class="mt-0.5 truncate text-muted" title="{{ $event->user_agent }}">{{ $event->user_agent ?? '—' }}</dd>
                 </div>
                 <div class="sm:col-span-2">
-                    <dt class="text-xs font-semibold uppercase text-slate-400">Hash SHA-256 documento (original)</dt>
-                    <dd class="break-all font-mono text-xs text-slate-600">{{ $event->original_sha256 ?? '—' }}</dd>
+                    <dt class="eyebrow">Hash SHA-256 documento (original)</dt>
+                    <dd class="mt-0.5 break-all font-mono text-xs text-muted">{{ $event->original_sha256 ?? '—' }}</dd>
                 </div>
                 <div class="sm:col-span-2">
-                    <dt class="text-xs font-semibold uppercase text-slate-400">Hash SHA-256 documento (firmado)</dt>
-                    <dd class="break-all font-mono text-xs text-slate-600">{{ $event->signed_sha256 ?? '—' }}</dd>
+                    <dt class="eyebrow">Hash SHA-256 documento (firmado)</dt>
+                    <dd class="mt-0.5 break-all font-mono text-xs text-muted">{{ $event->signed_sha256 ?? '—' }}</dd>
                 </div>
             </dl>
         </div>
     @empty
-        <div class="rounded-xl border border-slate-200 bg-white p-6 text-center text-sm text-slate-400">
-            Este documento aun no tiene eventos de firma.
+        <div class="card p-10 text-center text-sm text-muted">
+            Este documento aún no tiene eventos de firma.
         </div>
     @endforelse
 @endsection

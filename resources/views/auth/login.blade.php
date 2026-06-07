@@ -4,12 +4,13 @@
 
 @section('content')
     <div class="mx-auto mt-10 max-w-sm">
-        <div class="rounded-2xl border border-slate-200 bg-white p-8 shadow-sm">
-            <h1 class="text-xl font-semibold text-slate-900">Entrar</h1>
-            <p class="mt-1 text-sm text-slate-500">Accede para gestionar tus documentos.</p>
+        <div class="card p-8">
+            <p class="eyebrow">Acceso</p>
+            <h1 class="mt-2 text-2xl text-ink">Entrar</h1>
+            <p class="mt-1 text-sm text-muted">Accede para gestionar tus documentos.</p>
 
             @if ($errors->any())
-                <div class="mt-4 rounded-lg border border-rose-200 bg-rose-50 px-3 py-2 text-sm text-rose-700">
+                <div class="mt-5 rounded-xl px-3.5 py-2.5 text-sm" style="background:var(--color-danger-soft);color:var(--color-danger)">
                     {{ $errors->first() }}
                 </div>
             @endif
@@ -17,26 +18,21 @@
             <form method="POST" action="{{ route('login') }}" class="mt-6 space-y-4">
                 @csrf
                 <div>
-                    <label for="email" class="block text-sm font-medium text-slate-700">Email</label>
-                    <input id="email" name="email" type="email" value="{{ old('email') }}" required autofocus
-                        class="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-indigo-500 focus:ring-indigo-500">
+                    <label for="email" class="mb-1.5 block text-xs font-semibold uppercase tracking-wider text-faint">Email</label>
+                    <input id="email" name="email" type="email" value="{{ old('email') }}" required autofocus class="input">
                 </div>
                 <div>
-                    <label for="password" class="block text-sm font-medium text-slate-700">Contraseña</label>
-                    <input id="password" name="password" type="password" required
-                        class="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-indigo-500 focus:ring-indigo-500">
+                    <label for="password" class="mb-1.5 block text-xs font-semibold uppercase tracking-wider text-faint">Contraseña</label>
+                    <input id="password" name="password" type="password" required class="input">
                 </div>
-                <label class="flex items-center gap-2 text-sm text-slate-600">
-                    <input type="checkbox" name="remember" class="rounded border-slate-300 text-indigo-600 focus:ring-indigo-500">
+                <label class="flex items-center gap-2 text-sm text-muted">
+                    <input type="checkbox" name="remember" class="size-4 rounded border-line-strong text-accent focus:ring-accent">
                     Recordarme
                 </label>
-                <button type="submit"
-                    class="w-full rounded-lg bg-indigo-600 px-4 py-2 text-sm font-semibold text-white hover:bg-indigo-700">
-                    Entrar
-                </button>
+                <button type="submit" class="btn btn-primary w-full">Entrar</button>
             </form>
         </div>
 
-        <p class="mt-4 text-center text-xs text-slate-400">¿No tienes cuenta? Pídele acceso al administrador.</p>
+        <p class="mt-5 text-center text-xs text-faint">¿No tienes cuenta? Pídele acceso al administrador.</p>
     </div>
 @endsection
