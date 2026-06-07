@@ -1,0 +1,3 @@
+# Dependencias Python para el Nivel 2 (firma criptografica PAdES).
+# Instalar en el servidor:  pip install -r requirements.txt
+pyHanko>=0.35,<1.0
