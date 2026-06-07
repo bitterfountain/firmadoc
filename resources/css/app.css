@@ -13,9 +13,9 @@
     /* Paleta "pluma sobre papel": papel calido, tinta, un unico acento verde-tinta */
     --color-paper: #f5f2ea;
     --color-surface: #fffdf8;
-    --color-ink: #1c1913;
-    --color-muted: #6f6657;
-    --color-faint: #9b9384;
+    --color-ink: #161310;
+    --color-muted: #4c453a;
+    --color-faint: #756c5d;
     --color-line: #e6dfd0;
     --color-line-strong: #d6cdb8;
 
@@ -29,6 +29,11 @@
 }
 
 @layer base {
+    /* Base un punto mayor para todo el front (escala texto y espaciado en rem) */
+    html {
+        font-size: 17px;
+    }
+
     body {
         background-color: var(--color-paper);
         color: var(--color-ink);

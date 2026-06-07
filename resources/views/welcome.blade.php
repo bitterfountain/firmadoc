@@ -94,10 +94,10 @@
             </a>
         </div>
 
-        <p class="mx-auto mt-7 max-w-2xl text-center text-xs leading-relaxed text-faint">
-            La <strong class="font-semibold text-muted">firma simple</strong> es válida y admisible para la mayoría de acuerdos privados.
+        <p class="mx-auto mt-8 max-w-2xl text-center text-base leading-relaxed text-muted">
+            La <strong class="font-semibold text-ink">firma simple</strong> es válida y admisible para la mayoría de acuerdos privados.
             Para máxima fuerza probatoria o cuando la ley exige forma reforzada, usa la
-            <strong class="font-semibold text-muted">firma avanzada o cualificada</strong>.
+            <strong class="font-semibold text-ink">firma avanzada o cualificada</strong>.
         </p>
     </div>
 @endsection
