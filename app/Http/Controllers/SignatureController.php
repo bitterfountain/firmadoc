@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Concerns\HandlesDocumentFiles;
 use App\Mail\SignatureOtpMail;
 use App\Models\Document;
 use App\Models\SignatureEvent;
@@ -10,12 +11,12 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Mail;
-use Illuminate\Support\Facades\Storage;
 use Throwable;
 
 class SignatureController extends Controller
 {
-    private const DISK = 'local';
+    use HandlesDocumentFiles;
+
     private const OTP_MINUTES = 10;
     private const MAX_ATTEMPTS = 5;
 
@@ -79,7 +80,14 @@ class SignatureController extends Controller
         }
 
         // OTP correcto: marcamos verificado y calculamos el hash del documento original.
-        $originalHash = hash_file('sha256', Storage::disk(self::DISK)->path($document->pdf_path));
+        $work = $this->tempWorkDir();
+        try {
+            $localPdf = $work.DIRECTORY_SEPARATOR.'original.pdf';
+            $this->pullToLocal($document->pdf_path, $localPdf);
+            $originalHash = hash_file('sha256', $localPdf);
+        } finally {
+            $this->cleanupTemp($work);
+        }
 
         $event->update([
             'verified_at' => now(),
@@ -114,29 +122,37 @@ class SignatureController extends Controller
             ->firstOrFail();
 
         $dir = "documents/{$document->id}";
-        $request->file('signed')->storeAs($dir, 'signed.pdf', self::DISK);
-        $signedAbs = Storage::disk(self::DISK)->path("{$dir}/signed.pdf");
-
-        // Nivel 2: sellado criptografico PAdES como ultimo paso. Si falla o esta
-        // deshabilitado, el documento sigue valido en Nivel 1 (no rompemos el flujo).
+        $work = $this->tempWorkDir();
         $padesApplied = false;
-        if ($pades->isEnabled()) {
-            try {
-                $sealedAbs = Storage::disk(self::DISK)->path("{$dir}/sealed.pdf");
-                $pades->sign($signedAbs, $sealedAbs, [
-                    'reason' => 'Firma electronica con verificacion de identidad por email',
-                    'name' => $event->signer_name,
-                ]);
-                @unlink($signedAbs);
-                rename($sealedAbs, $signedAbs);
-                $padesApplied = true;
-            } catch (Throwable $e) {
-                report($e); // se registra, pero no aborta la firma
-            }
-        }
 
-        // Hash final sobre la version definitiva (sellada o no).
-        $signedHash = hash_file('sha256', $signedAbs);
+        try {
+            // Trabajamos en local; el resultado definitivo se sube al disco.
+            $signedAbs = $work.DIRECTORY_SEPARATOR.'signed.pdf';
+            copy($request->file('signed')->getRealPath(), $signedAbs);
+
+            // Nivel 2: sellado criptografico PAdES como ultimo paso. Si falla o esta
+            // deshabilitado, el documento sigue valido en Nivel 1 (no rompemos el flujo).
+            $finalAbs = $signedAbs;
+            if ($pades->isEnabled()) {
+                try {
+                    $sealedAbs = $work.DIRECTORY_SEPARATOR.'sealed.pdf';
+                    $pades->sign($signedAbs, $sealedAbs, [
+                        'reason' => 'Firma electronica con verificacion de identidad por email',
+                        'name' => $event->signer_name,
+                    ]);
+                    $finalAbs = $sealedAbs;
+                    $padesApplied = true;
+                } catch (Throwable $e) {
+                    report($e); // se registra, pero no aborta la firma
+                }
+            }
+
+            // Subimos la version definitiva (sellada o no) y calculamos su hash.
+            $this->pushFromLocal($finalAbs, "{$dir}/signed.pdf");
+            $signedHash = hash_file('sha256', $finalAbs);
+        } finally {
+            $this->cleanupTemp($work);
+        }
 
         $event->update([
             'signed_sha256' => $signedHash,

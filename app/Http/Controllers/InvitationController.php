@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Concerns\HandlesDocumentFiles;
 use App\Mail\SignatureInviteMail;
 use App\Mail\SignatureOtpMail;
 use App\Models\Document;
@@ -20,7 +21,8 @@ use Throwable;
 
 class InvitationController extends Controller
 {
-    private const DISK = 'local';
+    use HandlesDocumentFiles;
+
     private const OTP_MINUTES = 10;
     private const MAX_ATTEMPTS = 5;
 
@@ -125,9 +127,9 @@ class InvitationController extends Controller
     {
         $invitation = $this->resolve($token);
         $path = $this->currentPdfPath($invitation->document);
-        abort_unless($path && Storage::disk(self::DISK)->exists($path), 404);
+        abort_unless($path && Storage::disk($this->docDisk())->exists($path), 404);
 
-        return Storage::disk(self::DISK)->response($path, 'documento.pdf', [
+        return Storage::disk($this->docDisk())->response($path, 'documento.pdf', [
             'Content-Type' => 'application/pdf',
         ]);
     }
@@ -181,7 +183,14 @@ class InvitationController extends Controller
             return response()->json(['message' => 'Codigo incorrecto.', 'remaining' => self::MAX_ATTEMPTS - $event->attempts], 422);
         }
 
-        $originalHash = hash_file('sha256', Storage::disk(self::DISK)->path($this->currentPdfPath($invitation->document)));
+        $work = $this->tempWorkDir();
+        try {
+            $localPdf = $work.DIRECTORY_SEPARATOR.'original.pdf';
+            $this->pullToLocal($this->currentPdfPath($invitation->document), $localPdf);
+            $originalHash = hash_file('sha256', $localPdf);
+        } finally {
+            $this->cleanupTemp($work);
+        }
         $event->update(['verified_at' => now(), 'status' => 'verified', 'original_sha256' => $originalHash]);
 
         return response()->json([
@@ -214,32 +223,43 @@ class InvitationController extends Controller
             ->firstOrFail();
 
         $dir = "documents/{$document->id}";
-        $request->file('signed')->storeAs($dir, 'signed.pdf', self::DISK);
-        $signedAbs = Storage::disk(self::DISK)->path("{$dir}/signed.pdf");
 
         $invitation->update(['status' => 'signed', 'signed_at' => now()]);
 
         // ¿Quedan firmantes pendientes?
         $allSigned = ! $document->invitations()->where('status', '!=', 'signed')->exists();
 
+        $work = $this->tempWorkDir();
         $padesApplied = false;
-        if ($allSigned && $pades->isEnabled()) {
-            try {
-                $sealedAbs = Storage::disk(self::DISK)->path("{$dir}/sealed.pdf");
-                $pades->sign($signedAbs, $sealedAbs, [
-                    'reason' => 'Firma electronica multiparte con verificacion de identidad',
-                    'name' => $event->signer_name,
-                ]);
-                @unlink($signedAbs);
-                rename($sealedAbs, $signedAbs);
-                $padesApplied = true;
-            } catch (Throwable $e) {
-                report($e);
+
+        try {
+            $signedAbs = $work.DIRECTORY_SEPARATOR.'signed.pdf';
+            copy($request->file('signed')->getRealPath(), $signedAbs);
+
+            // PAdES solo cuando ha firmado el ultimo (re-sellar romperia firmas previas).
+            $finalAbs = $signedAbs;
+            if ($allSigned && $pades->isEnabled()) {
+                try {
+                    $sealedAbs = $work.DIRECTORY_SEPARATOR.'sealed.pdf';
+                    $pades->sign($signedAbs, $sealedAbs, [
+                        'reason' => 'Firma electronica multiparte con verificacion de identidad',
+                        'name' => $event->signer_name,
+                    ]);
+                    $finalAbs = $sealedAbs;
+                    $padesApplied = true;
+                } catch (Throwable $e) {
+                    report($e);
+                }
             }
+
+            $this->pushFromLocal($finalAbs, "{$dir}/signed.pdf");
+            $signedHash = hash_file('sha256', $finalAbs);
+        } finally {
+            $this->cleanupTemp($work);
         }
 
         $event->update([
-            'signed_sha256' => hash_file('sha256', $signedAbs),
+            'signed_sha256' => $signedHash,
             'pades_applied' => $padesApplied,
             'status' => 'completed',
         ]);

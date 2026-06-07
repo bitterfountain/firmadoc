@@ -9,6 +9,15 @@ return [
     */
     'soffice_path' => env('SOFFICE_PATH', ''),
 
+    /*
+    | Disco de almacenamiento de los documentos (config/filesystems.php).
+    | "local" usa el disco del servidor; "s3" usa un bucket S3/DO Spaces.
+    | El pipeline de conversion/firma necesita rutas locales, asi que cuando
+    | el disco es remoto los ficheros se materializan en temporales y el
+    | resultado se vuelve a subir (ver App\Concerns\HandlesDocumentFiles).
+    */
+    'disk' => env('DOCSIGNER_DISK', 'local'),
+
     // Tamano maximo de subida en kilobytes (20 MB por defecto).
     'max_upload_kb' => env('DOCSIGNER_MAX_UPLOAD_KB', 20480),
 
