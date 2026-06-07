@@ -418,6 +418,8 @@ async function init(root) {
     } else {
         // Nivel 0: sin verificacion de identidad. Nombre y email OPCIONALES (email solo para recibir el PDF).
         applyBtn.textContent = '3 · Firmar documento';
+        const modalTitle = modal.querySelector('h3');
+        if (modalTitle) modalTitle.textContent = 'Firmar documento';
         if (applyHint) applyHint.textContent = 'Firma sin registro. Opcional: deja tu email para recibir el PDF.';
         if (dataHint) dataHint.textContent = 'Opcional: deja tu nombre y email (para que consten y recibir el PDF firmado).';
         stepOtp?.remove();

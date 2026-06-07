@@ -8,8 +8,8 @@
         <div class="mt-2 rounded-2xl border border-slate-200 bg-white p-8 shadow-sm">
             <h1 class="text-xl font-semibold text-slate-900">Firma rápida</h1>
             <p class="mt-1 text-sm text-slate-500">
-                Sube tu documento (PDF, Word o imagen), fírmalo y recíbelo por email.
-                Verificamos tu identidad con un código. <strong>No guardamos nada en el servidor.</strong>
+                Sube tu documento (PDF, Word o imagen) y fírmalo en el navegador.
+                Opcional: deja tu email para recibir una copia. <strong>No guardamos nada en el servidor.</strong>
             </p>
 
             <form method="POST" action="{{ route('quick.upload') }}" enctype="multipart/form-data" class="mt-6 space-y-4">
