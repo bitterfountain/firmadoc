@@ -300,15 +300,19 @@ async function init(root) {
         removeSignature(lastActive.id);
     });
 
-    // --- Flujo de firma con verificacion OTP (Nivel 1) ---
+    // --- Flujo de firma: Nivel 1 (OTP por email) si hay otpUrl; Nivel 0 (sin verificacion) si no ---
+    const otpRequired = !!otpUrl;
     const modal = root.querySelector('[data-role="verify-modal"]');
     const stepData = modal.querySelector('[data-role="step-data"]');
     const stepOtp = modal.querySelector('[data-role="step-otp"]');
+    const dataHint = modal.querySelector('[data-role="data-hint"]');
     const nameInput = modal.querySelector('[data-role="signer-name"]');
     const emailInput = modal.querySelector('[data-role="signer-email"]');
     const otpInput = modal.querySelector('[data-role="otp-input"]');
     const sentEmail = modal.querySelector('[data-role="sent-email"]');
     const modalStatus = modal.querySelector('[data-role="modal-status"]');
+    const sendBtn = modal.querySelector('[data-action="send-code"]');
+    const applyHint = root.querySelector('[data-role="apply-hint"]');
     let eventId = null;
 
     const setModalStatus = (msg, isError = false) => {
@@ -317,7 +321,7 @@ async function init(root) {
     };
     const openModal = () => {
         stepData.classList.remove('hidden');
-        stepOtp.classList.add('hidden');
+        stepOtp?.classList.add('hidden');
         setModalStatus('');
         modal.classList.replace('hidden', 'flex');
     };
@@ -329,84 +333,133 @@ async function init(root) {
         body: JSON.stringify(body),
     });
 
-    // "Verificar identidad y firmar" -> abre el modal (todavia no firma).
     applyBtn.addEventListener('click', () => {
         if (!signatures.length) return setStatus('Coloca al menos una firma en el documento.', true);
         openModal();
     });
     modal.querySelector('[data-action="modal-close"]').addEventListener('click', closeModal);
-    modal.querySelector('[data-action="resend-code"]').addEventListener('click', () => {
-        stepOtp.classList.add('hidden');
-        stepData.classList.remove('hidden');
-        setModalStatus('');
-    });
 
-    // Paso 1: solicitar el codigo OTP.
-    modal.querySelector('[data-action="send-code"]').addEventListener('click', async (e) => {
-        const signer_name = nameInput.value.trim();
-        const signer_email = emailInput.value.trim();
-        if (!signer_name || !signer_email) return setModalStatus('Rellena nombre y email.', true);
-
-        e.target.disabled = true;
-        setModalStatus('Enviando codigo...');
-        try {
-            const res = await postJson(otpUrl, { signer_name, signer_email });
-            const json = await res.json();
-            if (!res.ok) throw new Error(json.message || `Error ${res.status}`);
-            eventId = json.event_id;
-            sentEmail.textContent = signer_email;
-            stepData.classList.add('hidden');
-            stepOtp.classList.remove('hidden');
-            otpInput.value = '';
-            otpInput.focus();
-            setModalStatus('Codigo enviado. Revisa tu email.');
-        } catch (err) {
-            setModalStatus(err.message, true);
-        } finally {
-            e.target.disabled = false;
+    // Incrusta firmas + certificado ya hechos y sube el PDF firmado.
+    async function uploadSigned(signedBytes, extra = {}) {
+        const form = new FormData();
+        for (const [k, v] of Object.entries(extra)) {
+            if (v != null && v !== '') form.append(k, v);
         }
-    });
+        form.append('signed', new Blob([signedBytes], { type: 'application/pdf' }), 'signed.pdf');
+        const up = await fetch(saveUrl, {
+            method: 'POST',
+            headers: { 'X-CSRF-TOKEN': csrf, Accept: 'application/json' },
+            body: form,
+        });
+        const upJson = await up.json();
+        if (!up.ok) throw new Error(upJson.message || `Error ${up.status}`);
+        closeModal();
+        downloadLink.href = upJson.download_url;
+        resultBox.classList.remove('hidden');
+        setStatus('');
+    }
 
-    // Paso 2: verificar el codigo -> incrustar firmas + certificado -> subir.
-    modal.querySelector('[data-action="verify-code"]').addEventListener('click', async (e) => {
-        const otp = otpInput.value.trim();
-        if (otp.length !== 6) return setModalStatus('Introduce los 6 digitos.', true);
+    if (otpRequired) {
+        // Nivel 1: verificacion de identidad por codigo (email obligatorio).
+        modal.querySelector('[data-action="resend-code"]').addEventListener('click', () => {
+            stepOtp.classList.add('hidden');
+            stepData.classList.remove('hidden');
+            setModalStatus('');
+        });
 
-        e.target.disabled = true;
-        setModalStatus('Verificando...');
-        try {
-            const res = await postJson(otpVerifyUrl, { event_id: eventId, otp });
-            const json = await res.json();
-            if (!res.ok) {
-                const extra = json.remaining != null ? ` (${json.remaining} intentos)` : '';
-                throw new Error((json.message || 'Codigo incorrecto') + extra);
+        sendBtn.addEventListener('click', async (e) => {
+            const signer_name = nameInput.value.trim();
+            const signer_email = emailInput.value.trim();
+            if (!signer_name || !signer_email) return setModalStatus('Rellena nombre y email.', true);
+
+            e.target.disabled = true;
+            setModalStatus('Enviando codigo...');
+            try {
+                const res = await postJson(otpUrl, { signer_name, signer_email });
+                const json = await res.json();
+                if (!res.ok) throw new Error(json.message || `Error ${res.status}`);
+                eventId = json.event_id;
+                sentEmail.textContent = signer_email;
+                stepData.classList.add('hidden');
+                stepOtp.classList.remove('hidden');
+                otpInput.value = '';
+                otpInput.focus();
+                setModalStatus('Codigo enviado. Revisa tu email.');
+            } catch (err) {
+                setModalStatus(err.message, true);
+            } finally {
+                e.target.disabled = false;
             }
+        });
 
+        modal.querySelector('[data-action="verify-code"]').addEventListener('click', async (e) => {
+            const otp = otpInput.value.trim();
+            if (otp.length !== 6) return setModalStatus('Introduce los 6 digitos.', true);
+
+            e.target.disabled = true;
+            setModalStatus('Verificando...');
+            try {
+                const res = await postJson(otpVerifyUrl, { event_id: eventId, otp });
+                const json = await res.json();
+                if (!res.ok) {
+                    const extra = json.remaining != null ? ` (${json.remaining} intentos)` : '';
+                    throw new Error((json.message || 'Codigo incorrecto') + extra);
+                }
+                setModalStatus('Firmando e incrustando certificado...');
+                const signedBytes = await buildSignedPdf(json.audit);
+                await uploadSigned(signedBytes, { event_id: eventId });
+            } catch (err) {
+                console.error(err);
+                setModalStatus(err.message, true);
+            } finally {
+                e.target.disabled = false;
+            }
+        });
+    } else {
+        // Nivel 0: sin verificacion de identidad. Nombre y email OPCIONALES (email solo para recibir el PDF).
+        applyBtn.textContent = '3 · Firmar documento';
+        if (applyHint) applyHint.textContent = 'Firma sin registro. Opcional: deja tu email para recibir el PDF.';
+        if (dataHint) dataHint.textContent = 'Opcional: deja tu nombre y email (para que consten y recibir el PDF firmado).';
+        stepOtp?.remove();
+        nameInput.placeholder = 'Nombre (opcional)';
+        nameInput.removeAttribute('readonly');
+        emailInput.placeholder = 'Email para recibir el PDF (opcional)';
+        emailInput.removeAttribute('readonly');
+        sendBtn.textContent = 'Firmar documento';
+
+        sendBtn.addEventListener('click', async (e) => {
+            e.target.disabled = true;
             setModalStatus('Firmando e incrustando certificado...');
-            const signedBytes = await buildSignedPdf(json.audit);
+            try {
+                const name = nameInput.value.trim();
+                const email = emailInput.value.trim();
+                const audit = await buildClientAudit(name, email);
+                const signedBytes = await buildSignedPdf(audit);
+                await uploadSigned(signedBytes, { signer_name: name, email, reference: audit.reference });
+            } catch (err) {
+                console.error(err);
+                setModalStatus(err.message, true);
+            } finally {
+                e.target.disabled = false;
+            }
+        });
+    }
 
-            const form = new FormData();
-            form.append('event_id', eventId);
-            form.append('signed', new Blob([signedBytes], { type: 'application/pdf' }), 'signed.pdf');
-            const up = await fetch(saveUrl, {
-                method: 'POST',
-                headers: { 'X-CSRF-TOKEN': csrf, Accept: 'application/json' },
-                body: form,
-            });
-            const upJson = await up.json();
-            if (!up.ok) throw new Error(upJson.message || `Error ${up.status}`);
-
-            closeModal();
-            downloadLink.href = upJson.download_url;
-            resultBox.classList.remove('hidden');
-            setStatus('');
-        } catch (err) {
-            console.error(err);
-            setModalStatus(err.message, true);
-        } finally {
-            e.target.disabled = false;
-        }
-    });
+    // Audit construido en el cliente para Nivel 0 (sin servidor): hash + fecha + referencia.
+    async function buildClientAudit(name, email) {
+        const buf = await crypto.subtle.digest('SHA-256', pdfBytes.slice());
+        const hash = [...new Uint8Array(buf)].map((b) => b.toString(16).padStart(2, '0')).join('');
+        const rnd = [...crypto.getRandomValues(new Uint8Array(4))].map((b) => b.toString(16).padStart(2, '0')).join('');
+        return {
+            reference: 'FD-' + rnd.toUpperCase(),
+            signer_name: name || '—',
+            signer_email: email || null,
+            verified_at_human: new Date().toLocaleString('es-ES'),
+            ip_address: null,
+            document_hash: hash,
+            level0: true,
+        };
+    }
 
     // Construye el PDF firmado: incrusta todas las firmas + anexa el certificado.
     async function buildSignedPdf(audit) {
@@ -448,12 +501,14 @@ async function init(root) {
         const rows = [
             ['Referencia', audit.reference],
             ['Firmante', audit.signer_name],
-            ['Email verificado', audit.signer_email],
-            ['Fecha y hora (verificacion)', audit.verified_at_human],
-            ['Direccion IP', audit.ip_address || '-'],
-            ['Hash SHA-256 del documento', audit.document_hash],
-            ['Numero de firmas incrustadas', String(signatures.length)],
         ];
+        if (audit.signer_email) {
+            rows.push([audit.level0 ? 'Email (entrega)' : 'Email verificado', audit.signer_email]);
+        }
+        rows.push([audit.level0 ? 'Fecha y hora de firma' : 'Fecha y hora (verificacion)', audit.verified_at_human]);
+        if (audit.ip_address) rows.push(['Direccion IP', audit.ip_address]);
+        rows.push(['Hash SHA-256 del documento', audit.document_hash]);
+        rows.push(['Numero de firmas incrustadas', String(signatures.length)]);
 
         for (const [label, value] of rows) {
             page.drawText(label.toUpperCase(), { x: 50, y, size: 8, font: bold, color: muted });
@@ -465,9 +520,10 @@ async function init(root) {
             y -= 8;
         }
 
-        page.drawText('Documento firmado con FirmaDoc. Firma electronica simple con verificacion de identidad por email.', {
-            x: 50, y: 56, size: 8, font, color: muted,
-        });
+        const footer = audit.level0
+            ? 'Documento firmado con FirmaDoc. Firma electronica simple (firma visual + sello de integridad SHA-256), sin verificacion de identidad.'
+            : 'Documento firmado con FirmaDoc. Firma electronica simple con verificacion de identidad por email.';
+        page.drawText(footer, { x: 50, y: 56, size: 8, font, color: muted, maxWidth: 495, lineHeight: 11 });
     }
 
     function setStatus(msg, isError = false) {

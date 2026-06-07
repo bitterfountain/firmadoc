@@ -24,8 +24,6 @@ Route::controller(QuickSignController::class)->prefix('firmar')->name('quick.')-
     Route::post('/', 'upload')->middleware('throttle:10,1')->name('upload');
     Route::get('/{eid}', 'sign')->whereAlphaNumeric('eid')->name('sign');
     Route::get('/{eid}/pdf', 'pdf')->whereAlphaNumeric('eid')->name('pdf');
-    Route::post('/{eid}/otp', 'otp')->whereAlphaNumeric('eid')->middleware('throttle:6,1')->name('otp');
-    Route::post('/{eid}/otp/verify', 'otpVerify')->whereAlphaNumeric('eid')->middleware('throttle:10,1')->name('otpVerify');
     Route::post('/{eid}/signed', 'finalize')->whereAlphaNumeric('eid')->name('finalize');
     Route::get('/{eid}/descargar', 'download')->whereAlphaNumeric('eid')->name('download');
 });

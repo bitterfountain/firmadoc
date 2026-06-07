@@ -84,7 +84,7 @@
                         class="w-full rounded-lg bg-indigo-600 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-indigo-700 disabled:cursor-not-allowed disabled:opacity-50">
                     3 · Verificar identidad y firmar
                 </button>
-                <p class="text-center text-[11px] text-slate-400">Te enviaremos un codigo por email para confirmar la firma.</p>
+                <p data-role="apply-hint" class="text-center text-[11px] text-slate-400">Te enviaremos un codigo por email para confirmar la firma.</p>
 
                 <div data-role="result" class="hidden rounded-xl border border-emerald-200 bg-emerald-50 p-4 text-center">
                     <p class="text-sm font-semibold text-emerald-800">¡Documento firmado!</p>
@@ -108,7 +108,7 @@
 
                 {{-- Paso A: datos del firmante --}}
                 <div data-role="step-data" class="mt-4 space-y-3">
-                    <p class="text-xs text-slate-500">Te enviaremos un codigo por email para confirmar la firma.</p>
+                    <p data-role="data-hint" class="text-xs text-slate-500">Te enviaremos un codigo por email para confirmar la firma.</p>
                     <input data-role="signer-name" type="text" placeholder="Nombre completo" autocomplete="name"
                            value="{{ $signerName }}" @if($signerName) readonly @endif
                            class="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-indigo-500 focus:outline-none read-only:bg-slate-100">

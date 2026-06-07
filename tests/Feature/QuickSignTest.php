@@ -2,7 +2,6 @@
 
 namespace Tests\Feature;
 
-use App\Mail\SignatureOtpMail;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\File;
@@ -18,40 +17,49 @@ class QuickSignTest extends TestCase
         return "%PDF-1.4\n1 0 obj<</Type/Catalog>>endobj\ntrailer<</Root 1 0 R>>\n%%EOF\n";
     }
 
-    public function test_anonymous_quick_sign_is_ephemeral(): void
+    /** Sube un PDF de forma anonima y devuelve el eid de la sesion efimera. */
+    private function uploadQuick(): string
     {
-        Mail::fake();
-
-        // Subida sin login.
         $file = UploadedFile::fake()->createWithContent('rapido.pdf', $this->pdfBytes());
         $res = $this->post(route('quick.upload'), ['file' => $file])->assertRedirect();
-        $eid = basename((string) $res->headers->get('Location'));
+
+        return basename((string) $res->headers->get('Location'));
+    }
+
+    public function test_anonymous_sign_without_email_is_ephemeral(): void
+    {
+        $eid = $this->uploadQuick();
 
         try {
             $this->get(route('quick.sign', $eid))->assertOk();
 
-            // OTP por email.
-            $this->postJson(route('quick.otp', $eid), [
-                'signer_name' => 'Ana',
-                'signer_email' => 'ana@example.com',
-            ])->assertOk()->assertJsonStructure(['event_id']);
-
-            $code = Mail::sent(SignatureOtpMail::class)->last()->code;
-
-            $this->postJson(route('quick.otpVerify', $eid), ['otp' => $code])
-                ->assertOk()
-                ->assertJsonPath('audit.signer_email', 'ana@example.com')
-                ->assertJsonStructure(['audit' => ['reference', 'document_hash']]);
-
-            // Finalizar: entrega + descarga, sin persistir nada.
+            // Nivel 0: firma directa, sin OTP y sin email.
             $signed = UploadedFile::fake()->createWithContent('signed.pdf', $this->pdfBytes());
             $this->post(route('quick.finalize', $eid), ['signed' => $signed])
                 ->assertOk()
                 ->assertJsonPath('ok', true)
                 ->assertJsonStructure(['download_url']);
 
-            // No se ha creado ninguna fila de documento.
+            // No persiste nada en BD.
             $this->assertDatabaseCount('documents', 0);
+        } finally {
+            File::deleteDirectory(storage_path('app/ephemeral/' . $eid));
+        }
+    }
+
+    public function test_optional_email_delivery_does_not_break(): void
+    {
+        Mail::fake();
+        $eid = $this->uploadQuick();
+
+        try {
+            $signed = UploadedFile::fake()->createWithContent('signed.pdf', $this->pdfBytes());
+            $this->post(route('quick.finalize', $eid), [
+                'signed' => $signed,
+                'email' => 'ana@example.com',
+                'signer_name' => 'Ana',
+                'reference' => 'FD-ABCD1234',
+            ])->assertOk()->assertJsonPath('ok', true);
         } finally {
             File::deleteDirectory(storage_path('app/ephemeral/' . $eid));
         }
@@ -61,20 +69,5 @@ class QuickSignTest extends TestCase
     {
         $this->get(route('quick.sign', 'deadbeefdeadbeefdeadbeefdeadbeef'))
             ->assertRedirect(route('quick.start'));
-    }
-
-    public function test_finalize_requires_verified_otp(): void
-    {
-        Mail::fake();
-        $file = UploadedFile::fake()->createWithContent('rapido.pdf', $this->pdfBytes());
-        $res = $this->post(route('quick.upload'), ['file' => $file])->assertRedirect();
-        $eid = basename((string) $res->headers->get('Location'));
-
-        try {
-            $signed = UploadedFile::fake()->createWithContent('signed.pdf', $this->pdfBytes());
-            $this->post(route('quick.finalize', $eid), ['signed' => $signed])->assertStatus(422);
-        } finally {
-            File::deleteDirectory(storage_path('app/ephemeral/' . $eid));
-        }
     }
 }
