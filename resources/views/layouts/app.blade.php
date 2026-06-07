@@ -58,8 +58,12 @@
         @yield('content')
     </main>
 
-    <footer class="mx-auto max-w-5xl px-5 pb-10 pt-4">
+    <footer class="mx-auto flex max-w-5xl flex-wrap items-center justify-between gap-2 px-5 pb-10 pt-4">
         <p class="text-xs text-faint">FirmaDoc · Firma electrónica de documentos</p>
+        <nav class="flex items-center gap-4 text-xs text-faint">
+            <a href="{{ route('legal.aviso') }}" class="transition-colors hover:text-ink">Aviso legal</a>
+            <a href="{{ route('legal.privacy') }}" class="transition-colors hover:text-ink">Privacidad</a>
+        </nav>
     </footer>
 
     @stack('scripts')

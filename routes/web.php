@@ -11,6 +11,10 @@ use Illuminate\Support\Facades\Route;
 // Portada publica (dos puertas: firma rapida / entrar).
 Route::get('/', [HomeController::class, 'index'])->name('home');
 
+// Paginas legales (publicas).
+Route::view('/aviso-legal', 'legal.aviso')->name('legal.aviso');
+Route::view('/privacidad', 'legal.privacidad')->name('legal.privacy');
+
 // --- Autenticacion (registro cerrado: usuarios via `php artisan firmadoc:user`) ---
 Route::middleware('guest')->group(function () {
     Route::get('/login', [LoginController::class, 'show'])->name('login');
