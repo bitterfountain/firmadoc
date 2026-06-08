@@ -31,6 +31,7 @@
     "Facturas y documentos con valor probatorio reforzado": "Invoices and documents needing stronger evidentiary value",
     "Firma múltiple con sellado de tiempo (PAdES-T/LTA)": "Multiple signing with timestamping (PAdES-T/LTA)",
     "Entrar": "Sign in",
+    "Fase de lanzamiento: las cuentas Pro son gratis, sin tarjeta.": "Launch phase: Pro accounts are free, no card required.",
     "La <strong class=\"font-semibold text-ink\">firma simple</strong> es válida y admisible para la mayoría de acuerdos privados. Para máxima fuerza probatoria o cuando la ley exige forma reforzada, usa la <strong class=\"font-semibold text-ink\">firma avanzada o cualificada</strong>.": "The <strong class=\"font-semibold text-ink\">simple signature</strong> is valid and admissible for most private agreements. For maximum evidentiary strength or when the law requires a stronger form, use the <strong class=\"font-semibold text-ink\">advanced or qualified signature</strong>.",
 
     "Acceso": "Access",

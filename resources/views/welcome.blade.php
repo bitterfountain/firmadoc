@@ -61,6 +61,11 @@
                     {{ __('Sello criptográfico (PAdES), multi-firmante y tus documentos guardados y privados.') }}
                 </p>
 
+                <p class="mt-3 flex items-center gap-2 rounded-lg px-3 py-2 text-xs font-semibold" style="background:rgba(176,135,56,0.12);color:var(--color-gold)">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" class="size-4 shrink-0"><path d="M12 3l1.9 4 4.4.6-3.2 3.1.8 4.3L12 13l-3.9 2 .8-4.3L5.7 7.6 10 7z"/></svg>
+                    {{ __('Fase de lanzamiento: las cuentas Pro son gratis, sin tarjeta.') }}
+                </p>
+
                 <span class="mt-4 inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-[11px] font-semibold text-ink" style="background:rgba(28,25,19,0.06)">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" class="size-3.5"><path d="M12 3l7 3v5c0 4.5-3 7.5-7 9-4-1.5-7-4.5-7-9V6z"/></svg>
                     {{ __('Firma avanzada · PAdES') }}
