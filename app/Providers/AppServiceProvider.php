@@ -24,7 +24,7 @@ class AppServiceProvider extends ServiceProvider
         // Transporte de correo "relay" (Resend casero por HTTPS).
         Mail::extend('relay', function (array $config) {
             return new RelayTransport(
-                (string) ($config['url'] ?? ''),
+                (string) ($config['endpoint'] ?? ''),
                 (string) ($config['token'] ?? ''),
                 (int) ($config['timeout'] ?? 30),
             );

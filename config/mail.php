@@ -70,7 +70,7 @@ return [
         // tiene bloqueado). Ver App\Mail\Transport\RelayTransport y mailrelay/.
         'relay' => [
             'transport' => 'relay',
-            'url' => env('MAIL_RELAY_URL'),
+            'endpoint' => env('MAIL_RELAY_URL'),
             'token' => env('MAIL_RELAY_TOKEN'),
             'timeout' => (int) env('MAIL_RELAY_TIMEOUT', 30),
         ],
