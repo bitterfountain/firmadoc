@@ -30,7 +30,7 @@ class LoginController extends Controller
 
         return back()
             ->withInput($request->only('email'))
-            ->withErrors(['email' => 'Las credenciales no son correctas.']);
+            ->withErrors(['email' => __('Las credenciales no son correctas.')]);
     }
 
     public function logout(Request $request): RedirectResponse

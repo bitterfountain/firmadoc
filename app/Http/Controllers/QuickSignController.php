@@ -87,7 +87,7 @@ class QuickSignController extends Controller
             File::deleteDirectory($dir);
 
             return redirect()->route('quick.start')
-                ->with('error', "No se pudo procesar el documento: {$e->getMessage()}");
+                ->with('error', __('No se pudo procesar el documento: :error', ['error' => $e->getMessage()]));
         }
 
         Cache::put("quick:{$eid}", [
@@ -103,7 +103,7 @@ class QuickSignController extends Controller
         $meta = $this->meta($eid);
         if (! $meta || ! is_file($this->dir($eid) . '/normalized.pdf')) {
             return redirect()->route('quick.start')
-                ->with('error', 'La sesion de firma ha caducado. Sube el documento de nuevo.');
+                ->with('error', __('La sesión de firma ha caducado. Sube el documento de nuevo.'));
         }
 
         return view('documents.sign', [

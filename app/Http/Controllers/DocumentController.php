@@ -85,7 +85,7 @@ class DocumentController extends Controller
 
             return redirect()
                 ->route('documents.index')
-                ->with('error', "No se pudo convertir el documento: {$e->getMessage()}");
+                ->with('error', __('No se pudo convertir el documento: :error', ['error' => $e->getMessage()]));
         } finally {
             $this->cleanupTemp($work);
         }
@@ -102,7 +102,7 @@ class DocumentController extends Controller
         if (! $document->pdf_path || ! Storage::disk($this->docDisk())->exists($document->pdf_path)) {
             return redirect()
                 ->route('documents.index')
-                ->with('error', 'Ese documento no esta listo para firmar.');
+                ->with('error', __('Ese documento no está listo para firmar.'));
         }
 
         return view('documents.sign', compact('document'));
@@ -141,6 +141,6 @@ class DocumentController extends Controller
         Storage::disk($this->docDisk())->deleteDirectory("documents/{$document->id}");
         $document->delete();
 
-        return redirect()->route('documents.index')->with('status', 'Documento eliminado.');
+        return redirect()->route('documents.index')->with('status', __('Documento eliminado.'));
     }
 }

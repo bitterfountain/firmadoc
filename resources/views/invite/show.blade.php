@@ -1,11 +1,16 @@
 @extends('layouts.app')
 
-@section('title', 'Tu invitación · FirmaDoc Pro')
+@section('title', __('Tu invitación') . ' · FirmaDoc Pro')
 
 @section('content')
     @php
         $d = $invite->grant_days;
-        $label = $d % 365 === 0 ? intdiv($d, 365) . ' año' . (intdiv($d, 365) > 1 ? 's' : '') : $d . ' días';
+        if ($d % 365 === 0) {
+            $n = intdiv($d, 365);
+            $label = $n . ' ' . ($n > 1 ? __('años') : __('año'));
+        } else {
+            $label = $d . ' ' . __('días');
+        }
     @endphp
 
     <div class="mx-auto mt-6 max-w-md text-center">
@@ -16,15 +21,14 @@
             </svg>
         </span>
 
-        <p class="eyebrow mt-6">Invitación</p>
-        <h1 class="mt-2 text-3xl leading-tight text-ink">Te han invitado a<br><em class="font-normal italic text-accent">FirmaDoc&nbsp;Pro</em></h1>
+        <p class="eyebrow mt-6">{{ __('Invitación') }}</p>
+        <h1 class="mt-2 text-3xl leading-tight text-ink">{{ __('Te han invitado a') }}<br><em class="font-normal italic text-accent">FirmaDoc&nbsp;Pro</em></h1>
         <p class="mx-auto mt-3 max-w-sm text-[15px] leading-relaxed text-muted">
-            Activa <strong class="text-ink">{{ $label }}</strong> de cuenta profesional, <strong class="text-ink">gratis</strong>.
-            Sin tarjeta, sin compromiso.
+            {!! __('Activa <strong class="text-ink">:label</strong> de cuenta profesional, <strong class="text-ink">gratis</strong>. Sin tarjeta, sin compromiso.', ['label' => $label]) !!}
         </p>
 
         <div class="card mt-7 p-6 text-left">
-            <p class="eyebrow">Incluye</p>
+            <p class="eyebrow">{{ __('Incluye') }}</p>
             <ul class="mt-3 space-y-2 text-sm text-muted">
                 @foreach ([
                     'Firma avanzada con sello criptográfico (PAdES)',
@@ -34,7 +38,7 @@
                 ] as $feat)
                     <li class="flex items-start gap-2.5">
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" class="mt-0.5 size-4 shrink-0 text-accent"><path d="M20 6 9 17l-5-5"/></svg>
-                        {{ $feat }}
+                        {{ __($feat) }}
                     </li>
                 @endforeach
             </ul>
@@ -49,16 +53,16 @@
 
             <form method="POST" action="{{ route('invite.register', $invite->token) }}" class="space-y-3">
                 @csrf
-                <input name="name" type="text" placeholder="Nombre completo" value="{{ old('name') }}" required autofocus class="input">
-                <input name="email" type="email" placeholder="tu@email.com" value="{{ old('email') }}" required class="input">
-                <input name="password" type="password" placeholder="Contraseña (mín. 8)" required class="input">
-                <input name="password_confirmation" type="password" placeholder="Repite la contraseña" required class="input">
-                <button type="submit" class="btn btn-primary w-full">Activar mi cuenta Pro</button>
+                <input name="name" type="text" placeholder="{{ __('Nombre completo') }}" value="{{ old('name') }}" required autofocus class="input">
+                <input name="email" type="email" placeholder="{{ __('tu@email.com') }}" value="{{ old('email') }}" required class="input">
+                <input name="password" type="password" placeholder="{{ __('Contraseña (mín. 8)') }}" required class="input">
+                <input name="password_confirmation" type="password" placeholder="{{ __('Repite la contraseña') }}" required class="input">
+                <button type="submit" class="btn btn-primary w-full">{{ __('Activar mi cuenta Pro') }}</button>
             </form>
         </div>
 
         <p class="mt-5 text-xs text-faint">
-            La cuenta profesional será válida durante {{ $label }}. Este enlace es de un solo uso.
+            {{ __('La cuenta profesional será válida durante :label. Este enlace es de un solo uso.', ['label' => $label]) }}
         </p>
     </div>
 @endsection

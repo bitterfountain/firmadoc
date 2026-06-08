@@ -66,18 +66,18 @@ class SignatureController extends Controller
             ->firstOrFail();
 
         if (! $event->isOtpValid()) {
-            return response()->json(['message' => 'El codigo ha caducado. Solicita uno nuevo.'], 422);
+            return response()->json(['message' => __('El código ha caducado. Solicita uno nuevo.')], 422);
         }
 
         if ($event->attempts >= self::MAX_ATTEMPTS) {
             $event->update(['status' => 'expired']);
-            return response()->json(['message' => 'Demasiados intentos. Solicita un codigo nuevo.'], 422);
+            return response()->json(['message' => __('Demasiados intentos. Solicita un código nuevo.')], 422);
         }
 
         if (! Hash::check($data['otp'], $event->otp_hash)) {
             $event->increment('attempts');
             return response()->json([
-                'message' => 'Codigo incorrecto.',
+                'message' => __('Código incorrecto.'),
                 'remaining' => self::MAX_ATTEMPTS - $event->attempts,
             ], 422);
         }

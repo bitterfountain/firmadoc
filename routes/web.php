@@ -6,6 +6,7 @@ use App\Http\Controllers\DocumentController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\InvitationController;
 use App\Http\Controllers\InviteController;
+use App\Http\Controllers\LocaleController;
 use App\Http\Controllers\QuickSignController;
 use App\Http\Controllers\SignatureController;
 use App\Http\Middleware\EnsureProActive;
@@ -13,6 +14,9 @@ use Illuminate\Support\Facades\Route;
 
 // Portada publica (dos puertas: firma rapida / entrar).
 Route::get('/', [HomeController::class, 'index'])->name('home');
+
+// Cambio de idioma (es / en).
+Route::get('/lang/{locale}', [LocaleController::class, 'switch'])->name('locale.switch');
 
 // Paginas legales (publicas).
 Route::view('/aviso-legal', 'legal.aviso')->name('legal.aviso');

@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="es" class="h-full">
+<html lang="{{ str_replace('_', '-', app()->getLocale()) }}" class="h-full">
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
@@ -24,17 +24,25 @@
                 <span class="text-lg font-semibold tracking-tight text-ink" style="font-family:var(--font-display)">FirmaDoc</span>
             </a>
 
-            @auth
-                <div class="flex items-center gap-3 text-sm">
-                    <span class="hidden text-muted sm:inline">{{ auth()->user()->name }}</span>
-                    <form method="POST" action="{{ route('logout') }}">
-                        @csrf
-                        <button type="submit" class="btn btn-ghost px-4 py-1.5">Salir</button>
-                    </form>
+            <div class="flex items-center gap-4">
+                <div class="flex items-center gap-1.5 text-xs">
+                    <a href="{{ route('locale.switch', 'es') }}" class="{{ app()->getLocale() === 'es' ? 'font-bold text-ink' : 'text-faint hover:text-ink' }}">ES</a>
+                    <span class="text-line-strong">·</span>
+                    <a href="{{ route('locale.switch', 'en') }}" class="{{ app()->getLocale() === 'en' ? 'font-bold text-ink' : 'text-faint hover:text-ink' }}">EN</a>
                 </div>
-            @else
-                <span class="eyebrow hidden sm:block">Firma electrónica</span>
-            @endauth
+
+                @auth
+                    <div class="flex items-center gap-3 text-sm">
+                        <span class="hidden text-muted sm:inline">{{ auth()->user()->name }}</span>
+                        <form method="POST" action="{{ route('logout') }}">
+                            @csrf
+                            <button type="submit" class="btn btn-ghost px-4 py-1.5">{{ __('Salir') }}</button>
+                        </form>
+                    </div>
+                @else
+                    <span class="eyebrow hidden sm:block">{{ __('Firma electrónica') }}</span>
+                @endauth
+            </div>
         </div>
     </header>
 
@@ -59,10 +67,10 @@
     </main>
 
     <footer class="mx-auto flex max-w-5xl flex-wrap items-center justify-between gap-2 px-5 pb-10 pt-4">
-        <p class="text-xs text-faint">FirmaDoc · Firma electrónica de documentos</p>
+        <p class="text-xs text-faint">{{ __('FirmaDoc · Firma electrónica de documentos') }}</p>
         <nav class="flex items-center gap-4 text-xs text-faint">
-            <a href="{{ route('legal.aviso') }}" class="transition-colors hover:text-ink">Aviso legal</a>
-            <a href="{{ route('legal.privacy') }}" class="transition-colors hover:text-ink">Privacidad</a>
+            <a href="{{ route('legal.aviso') }}" class="transition-colors hover:text-ink">{{ __('Aviso legal') }}</a>
+            <a href="{{ route('legal.privacy') }}" class="transition-colors hover:text-ink">{{ __('Privacidad') }}</a>
         </nav>
     </footer>
 

@@ -23,7 +23,7 @@ class EnsureProActive
             $request->session()->regenerateToken();
 
             return redirect()->route('login')->withErrors([
-                'email' => 'Tu cuenta profesional ha caducado. Solicita una renovación.',
+                'email' => __('Tu cuenta profesional ha caducado. Solicita una renovación.'),
             ]);
         }
 

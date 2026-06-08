@@ -18,6 +18,8 @@ async function init(root) {
     const otpUrl = root.dataset.otpUrl;
     const otpVerifyUrl = root.dataset.otpVerifyUrl;
     const csrf = document.querySelector('meta[name="csrf-token"]').content;
+    const L = window.__signLang || {};
+    const t = (key, fallback) => L[key] ?? fallback;
 
     const stage = root.querySelector('[data-role="stage"]');
     const canvas = root.querySelector('[data-role="pdf-canvas"]');
@@ -177,12 +179,14 @@ async function init(root) {
     function updateZoneInfo() {
         const n = signatures.length;
         if (n === 0) {
-            zoneInfo.textContent = 'Sin firmas colocadas.';
+            zoneInfo.textContent = t('noSigs', 'Sin firmas colocadas.');
             zoneInfo.className = 'mt-2 text-xs text-faint';
             return;
         }
         const here = signatures.filter((s) => s.page === currentPage).length;
-        zoneInfo.textContent = `${n} firma(s) en total${here ? ` · ${here} en esta pagina` : ''}.`;
+        const total = t('total', 'firma(s) en total');
+        const onPage = t('onPage', 'en esta página');
+        zoneInfo.textContent = `${n} ${total}${here ? ` · ${here} ${onPage}` : ''}.`;
         zoneInfo.className = 'mt-2 text-xs font-semibold text-accent';
     }
 
@@ -214,7 +218,7 @@ async function init(root) {
     // En zona vacia: empezar una caja nueva usando la firma actual del pad.
     overlay.addEventListener('pointerdown', (e) => {
         const snap = currentSignatureSnapshot();
-        if (!snap) { setStatus('Dibuja tu firma antes de colocarla en el documento.', true); return; }
+        if (!snap) { setStatus(t('drawFirst', 'Dibuja tu firma antes de colocarla en el documento.'), true); return; }
         overlay.setPointerCapture(e.pointerId);
         const p = pointerPos(e);
         const { w: ow, h: oh } = overlaySize();
@@ -334,7 +338,7 @@ async function init(root) {
     });
 
     applyBtn.addEventListener('click', () => {
-        if (!signatures.length) return setStatus('Coloca al menos una firma en el documento.', true);
+        if (!signatures.length) return setStatus(t('placeOne', 'Coloca al menos una firma en el documento.'), true);
         openModal();
     });
     modal.querySelector('[data-action="modal-close"]').addEventListener('click', closeModal);
@@ -370,10 +374,10 @@ async function init(root) {
         sendBtn.addEventListener('click', async (e) => {
             const signer_name = nameInput.value.trim();
             const signer_email = emailInput.value.trim();
-            if (!signer_name || !signer_email) return setModalStatus('Rellena nombre y email.', true);
+            if (!signer_name || !signer_email) return setModalStatus(t('fillNameEmail', 'Rellena nombre y email.'), true);
 
             e.target.disabled = true;
-            setModalStatus('Enviando codigo...');
+            setModalStatus(t('sending', 'Enviando código...'));
             try {
                 const res = await postJson(otpUrl, { signer_name, signer_email });
                 const json = await res.json();
@@ -384,7 +388,7 @@ async function init(root) {
                 stepOtp.classList.remove('hidden');
                 otpInput.value = '';
                 otpInput.focus();
-                setModalStatus('Codigo enviado. Revisa tu email.');
+                setModalStatus(t('codeSent', 'Código enviado. Revisa tu email.'));
             } catch (err) {
                 setModalStatus(err.message, true);
             } finally {
@@ -394,18 +398,18 @@ async function init(root) {
 
         modal.querySelector('[data-action="verify-code"]').addEventListener('click', async (e) => {
             const otp = otpInput.value.trim();
-            if (otp.length !== 6) return setModalStatus('Introduce los 6 digitos.', true);
+            if (otp.length !== 6) return setModalStatus(t('enter6', 'Introduce los 6 dígitos.'), true);
 
             e.target.disabled = true;
-            setModalStatus('Verificando...');
+            setModalStatus(t('verifying', 'Verificando...'));
             try {
                 const res = await postJson(otpVerifyUrl, { event_id: eventId, otp });
                 const json = await res.json();
                 if (!res.ok) {
-                    const extra = json.remaining != null ? ` (${json.remaining} intentos)` : '';
-                    throw new Error((json.message || 'Codigo incorrecto') + extra);
+                    const extra = json.remaining != null ? ` (${json.remaining} ${t('attempts', 'intentos')})` : '';
+                    throw new Error((json.message || t('wrongCode', 'Código incorrecto')) + extra);
                 }
-                setModalStatus('Firmando e incrustando certificado...');
+                setModalStatus(t('signing', 'Firmando e incrustando certificado...'));
                 const signedBytes = await buildSignedPdf(json.audit);
                 await uploadSigned(signedBytes, { event_id: eventId });
             } catch (err) {
@@ -417,17 +421,17 @@ async function init(root) {
         });
     } else {
         // Nivel 0: sin verificacion de identidad. Nombre y email OPCIONALES (email solo para recibir el PDF).
-        applyBtn.textContent = '3 · Firmar documento';
+        applyBtn.textContent = t('signDocBtn', '3 · Firmar documento');
         const modalTitle = modal.querySelector('h3');
-        if (modalTitle) modalTitle.textContent = 'Firmar documento';
-        if (applyHint) applyHint.textContent = 'Firma sin registro, sin verificación de identidad.';
-        if (dataHint) dataHint.textContent = '¿Quieres recibir el PDF por email? Rellena tus datos. Si no, usa la descarga directa.';
+        if (modalTitle) modalTitle.textContent = t('signDocTitle', 'Firmar documento');
+        if (applyHint) applyHint.textContent = t('n0Hint', 'Firma sin registro, sin verificación de identidad.');
+        if (dataHint) dataHint.textContent = t('n0DataHint', '¿Quieres recibir el PDF por email? Rellena tus datos. Si no, usa la descarga directa.');
         stepOtp?.remove();
-        nameInput.placeholder = 'Nombre (opcional)';
+        nameInput.placeholder = t('namePh', 'Nombre (opcional)');
         nameInput.removeAttribute('readonly');
-        emailInput.placeholder = 'Tu email';
+        emailInput.placeholder = t('emailPh', 'Tu email');
         emailInput.removeAttribute('readonly');
-        sendBtn.textContent = 'Firmar y enviar por email';
+        sendBtn.textContent = t('signEmailBtn', 'Firmar y enviar por email');
         modal.querySelector('[data-role="quick-direct"]')?.classList.remove('hidden');
 
         // Firma cliente (Nivel 0). withEmail decide si se entrega por email.
@@ -451,7 +455,7 @@ async function init(root) {
         // Boton 1: solo envia el formulario de nombre/email.
         sendBtn.addEventListener('click', (e) => {
             if (!emailInput.value.trim()) {
-                return setModalStatus('Introduce un email, o usa “Descarga directa”.', true);
+                return setModalStatus(t('needEmail', 'Introduce un email, o usa «Descarga directa».'), true);
             }
             doQuickSign(e.target, true);
         });
@@ -508,22 +512,22 @@ async function init(root) {
         const muted = rgb(0.45, 0.5, 0.58);
 
         let y = 780;
-        page.drawText('Certificado de firma electronica', { x: 50, y, size: 18, font: bold, color: ink });
+        page.drawText(t('certTitle', 'Certificado de firma electronica'), { x: 50, y, size: 18, font: bold, color: ink });
         y -= 14;
         page.drawLine({ start: { x: 50, y }, end: { x: 545, y }, thickness: 1, color: rgb(0.85, 0.87, 0.9) });
         y -= 32;
 
         const rows = [
-            ['Referencia', audit.reference],
-            ['Firmante', audit.signer_name],
+            [t('cReference', 'Referencia'), audit.reference],
+            [t('cSigner', 'Firmante'), audit.signer_name],
         ];
         if (audit.signer_email) {
-            rows.push([audit.level0 ? 'Email (entrega)' : 'Email verificado', audit.signer_email]);
+            rows.push([audit.level0 ? t('cEmailDeliv', 'Email (entrega)') : t('cEmailVer', 'Email verificado'), audit.signer_email]);
         }
-        rows.push([audit.level0 ? 'Fecha y hora de firma' : 'Fecha y hora (verificacion)', audit.verified_at_human]);
-        if (audit.ip_address) rows.push(['Direccion IP', audit.ip_address]);
-        rows.push(['Hash SHA-256 del documento', audit.document_hash]);
-        rows.push(['Numero de firmas incrustadas', String(signatures.length)]);
+        rows.push([audit.level0 ? t('cDateSign', 'Fecha y hora de firma') : t('cDateVer', 'Fecha y hora (verificacion)'), audit.verified_at_human]);
+        if (audit.ip_address) rows.push([t('cIp', 'Direccion IP'), audit.ip_address]);
+        rows.push([t('cHash', 'Hash SHA-256 del documento'), audit.document_hash]);
+        rows.push([t('cCount', 'Numero de firmas incrustadas'), String(signatures.length)]);
 
         for (const [label, value] of rows) {
             page.drawText(label.toUpperCase(), { x: 50, y, size: 8, font: bold, color: muted });
@@ -536,8 +540,8 @@ async function init(root) {
         }
 
         const footer = audit.level0
-            ? 'Documento firmado con FirmaDoc. Firma electronica simple (firma visual + sello de integridad SHA-256), sin verificacion de identidad.'
-            : 'Documento firmado con FirmaDoc. Firma electronica simple con verificacion de identidad por email.';
+            ? t('cFooter0', 'Documento firmado con FirmaDoc. Firma electronica simple (firma visual + sello de integridad SHA-256), sin verificacion de identidad.')
+            : t('cFooter1', 'Documento firmado con FirmaDoc. Firma electronica simple con verificacion de identidad por email.');
         page.drawText(footer, { x: 50, y: 56, size: 8, font, color: muted, maxWidth: 495, lineHeight: 11 });
     }
 

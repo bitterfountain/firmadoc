@@ -1,15 +1,15 @@
 @extends('layouts.app')
 
-@section('title', 'Mis documentos · FirmaDoc')
+@section('title', __('Mis documentos') . ' · FirmaDoc')
 
 @section('content')
     <div class="grid gap-6 md:grid-cols-[1fr_1.4fr]">
         {{-- Subida --}}
         <section class="card h-fit p-6">
-            <p class="eyebrow">Nuevo</p>
-            <h1 class="mt-2 text-xl text-ink">Subir documento</h1>
+            <p class="eyebrow">{{ __('Nuevo') }}</p>
+            <h1 class="mt-2 text-xl text-ink">{{ __('Subir documento') }}</h1>
             <p class="mt-1 text-sm leading-relaxed text-muted">
-                PDF, Word (DOCX) o imagen (JPG/PNG). Todo se convierte a PDF para firmar.
+                {{ __('PDF, Word (DOCX) o imagen (JPG/PNG). Todo se convierte a PDF para firmar.') }}
             </p>
 
             <form action="{{ route('documents.store') }}" method="POST" enctype="multipart/form-data" class="mt-5">
@@ -18,26 +18,27 @@
                     <span class="grid size-11 place-items-center rounded-xl bg-accent-soft text-accent">
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="size-6"><path d="M12 16V4M7 9l5-5 5 5"/><path d="M5 16v2a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-2"/></svg>
                     </span>
-                    <span class="mt-1 text-sm font-semibold text-ink">Pulsa para elegir un archivo</span>
-                    <span id="file-name" class="text-xs text-faint">Ningún archivo seleccionado</span>
+                    <span class="mt-1 text-sm font-semibold text-ink">{{ __('Pulsa para elegir un archivo') }}</span>
+                    <span id="file-name" class="text-xs text-faint">{{ __('Ningún archivo seleccionado') }}</span>
                 </label>
                 <input id="file-input" type="file" name="file" class="sr-only"
                        accept=".pdf,.docx,.doc,.odt,.jpg,.jpeg,.png"
-                       onchange="document.getElementById('file-name').textContent = this.files[0]?.name || 'Ningún archivo seleccionado'">
+                       data-empty="{{ __('Ningún archivo seleccionado') }}"
+                       onchange="document.getElementById('file-name').textContent = this.files[0]?.name || this.dataset.empty">
 
                 @error('file')
                     <p class="mt-2 text-sm" style="color:var(--color-danger)">{{ $message }}</p>
                 @enderror
 
-                <button type="submit" class="btn btn-primary mt-4 w-full">Subir y convertir</button>
+                <button type="submit" class="btn btn-primary mt-4 w-full">{{ __('Subir y convertir') }}</button>
             </form>
         </section>
 
         {{-- Listado --}}
         <section>
             <div class="flex items-baseline justify-between">
-                <h2 class="text-xl text-ink">Documentos</h2>
-                <span class="text-xs text-faint">{{ $documents->count() }} en total</span>
+                <h2 class="text-xl text-ink">{{ __('Documentos') }}</h2>
+                <span class="text-xs text-faint">{{ $documents->count() }} {{ __('en total') }}</span>
             </div>
 
             <div class="mt-4 space-y-3">
@@ -60,7 +61,7 @@
                                 <p class="truncate text-sm font-semibold text-ink">{{ $document->original_name }}</p>
                                 <p class="mt-1 flex items-center gap-2 text-xs text-faint">
                                     <span>{{ strtoupper($document->source_format) }}</span>
-                                    <span class="rounded-full px-2 py-0.5 text-[11px] font-semibold" style="color:{{ $badge[1] }};background:{{ $badge[2] }}">{{ $badge[0] }}</span>
+                                    <span class="rounded-full px-2 py-0.5 text-[11px] font-semibold" style="color:{{ $badge[1] }};background:{{ $badge[2] }}">{{ __($badge[0]) }}</span>
                                 </p>
                                 @if ($document->status === 'failed' && $document->error)
                                     <p class="mt-1 truncate text-xs" style="color:var(--color-danger)" title="{{ $document->error }}">{{ $document->error }}</p>
@@ -71,20 +72,20 @@
                         <div class="flex shrink-0 items-center gap-2">
                             @if ($document->isReadyToSign() || in_array($document->status, ['signed', 'in_progress', 'completed']))
                                 <a href="{{ route('documents.sign', $document) }}" class="btn btn-primary px-3 py-1.5 text-xs">
-                                    {{ $document->status === 'completed' ? 'Ver' : 'Firmar' }}
+                                    {{ $document->status === 'completed' ? __('Ver') : __('Firmar') }}
                                 </a>
-                                <a href="{{ route('documents.signers', $document) }}" class="btn btn-ghost px-3 py-1.5 text-xs">Firmantes</a>
+                                <a href="{{ route('documents.signers', $document) }}" class="btn btn-ghost px-3 py-1.5 text-xs">{{ __('Firmantes') }}</a>
                             @endif
                             @if ($document->signed_path)
-                                <a href="{{ route('documents.download', $document) }}" class="btn btn-ghost px-3 py-1.5 text-xs">Descargar</a>
+                                <a href="{{ route('documents.download', $document) }}" class="btn btn-ghost px-3 py-1.5 text-xs">{{ __('Descargar') }}</a>
                             @endif
                             @if ($document->signature_events_count > 0)
-                                <a href="{{ route('documents.audit', $document) }}" class="btn btn-ghost px-3 py-1.5 text-xs">Auditoría</a>
+                                <a href="{{ route('documents.audit', $document) }}" class="btn btn-ghost px-3 py-1.5 text-xs">{{ __('Auditoría') }}</a>
                             @endif
-                            <form action="{{ route('documents.destroy', $document) }}" method="POST" onsubmit="return confirm('¿Eliminar este documento?')">
+                            <form action="{{ route('documents.destroy', $document) }}" method="POST" onsubmit="return confirm('{{ __('¿Eliminar este documento?') }}')">
                                 @csrf
                                 @method('DELETE')
-                                <button class="grid size-8 place-items-center rounded-lg text-faint transition-colors hover:bg-[var(--color-danger-soft)] hover:text-[var(--color-danger)]" title="Eliminar">
+                                <button class="grid size-8 place-items-center rounded-lg text-faint transition-colors hover:bg-[var(--color-danger-soft)] hover:text-[var(--color-danger)]" title="{{ __('Eliminar') }}">
                                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" class="size-4"><path d="M3 6h18M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/></svg>
                                 </button>
                             </form>
@@ -92,7 +93,7 @@
                     </div>
                 @empty
                     <div class="card p-10 text-center">
-                        <p class="text-sm text-muted">Aún no has subido ningún documento.</p>
+                        <p class="text-sm text-muted">{{ __('Aún no has subido ningún documento.') }}</p>
                     </div>
                 @endforelse
             </div>
@@ -103,20 +104,19 @@
         <section class="mt-10">
             <div class="flex flex-wrap items-baseline justify-between gap-3">
                 <div>
-                    <h2 class="text-xl text-ink">Invitaciones Pro</h2>
-                    <p class="mt-0.5 text-sm text-muted">Enlaces de un solo uso que dan 1 año de cuenta profesional gratis.</p>
+                    <h2 class="text-xl text-ink">{{ __('Invitaciones Pro') }}</h2>
+                    <p class="mt-0.5 text-sm text-muted">{{ __('Enlaces de un solo uso que dan 1 año de cuenta profesional gratis.') }}</p>
                 </div>
                 <form method="POST" action="{{ route('invites.store') }}">
                     @csrf
-                    <button class="btn btn-primary px-4 py-2 text-sm">Generar enlace</button>
+                    <button class="btn btn-primary px-4 py-2 text-sm">{{ __('Generar enlace') }}</button>
                 </form>
             </div>
 
             @if (session('invite_url'))
                 <div class="card mt-4 p-4" style="border-color:var(--color-accent)">
-                    <p class="text-sm font-semibold text-accent">Enlace creado — cópialo y compártelo (un solo uso):</p>
-                    <input readonly onclick="this.select()" value="{{ session('invite_url') }}"
-                           class="input mt-2 font-mono text-xs">
+                    <p class="text-sm font-semibold text-accent">{{ __('Enlace creado — cópialo y compártelo (un solo uso):') }}</p>
+                    <input readonly onclick="this.select()" value="{{ session('invite_url') }}" class="input mt-2 font-mono text-xs">
                 </div>
             @endif
 
@@ -132,10 +132,10 @@
                     <div class="card flex items-center justify-between gap-3 p-3">
                         <input readonly onclick="this.select()" value="{{ $inv->url() }}"
                                class="min-w-0 flex-1 truncate bg-transparent font-mono text-xs text-muted outline-none">
-                        <span class="shrink-0 rounded-full px-2.5 py-0.5 text-[11px] font-semibold" style="color:{{ $col }};background:{{ $bg }}">{{ $txt }}</span>
+                        <span class="shrink-0 rounded-full px-2.5 py-0.5 text-[11px] font-semibold" style="color:{{ $col }};background:{{ $bg }}">{{ __($txt) }}</span>
                     </div>
                 @empty
-                    <p class="text-sm text-faint">Aún no has generado invitaciones.</p>
+                    <p class="text-sm text-faint">{{ __('Aún no has generado invitaciones.') }}</p>
                 @endforelse
             </div>
         </section>

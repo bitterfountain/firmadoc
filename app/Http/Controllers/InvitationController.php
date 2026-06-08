@@ -36,7 +36,7 @@ class InvitationController extends Controller
         abort_unless($document->user_id === auth()->id(), 403);
 
         if (! $document->pdf_path) {
-            return redirect()->route('documents.index')->with('error', 'El documento aun no esta listo.');
+            return redirect()->route('documents.index')->with('error', __('El documento aún no está listo.'));
         }
 
         $invitations = $document->invitations()->get();
@@ -71,7 +71,7 @@ class InvitationController extends Controller
         ));
 
         return redirect()->route('documents.signers', $document)
-            ->with('status', "Invitacion enviada a {$invitation->email}.");
+            ->with('status', __('Invitación enviada a :email.', ['email' => $invitation->email]));
     }
 
     /** Elimina una invitacion pendiente. */
@@ -81,12 +81,12 @@ class InvitationController extends Controller
         abort_unless($invitation->document_id === $document->id, 404);
 
         if ($invitation->status === 'signed') {
-            return back()->with('error', 'No se puede quitar a un firmante que ya firmo.');
+            return back()->with('error', __('No se puede quitar a un firmante que ya firmó.'));
         }
 
         $invitation->delete();
 
-        return redirect()->route('documents.signers', $document)->with('status', 'Firmante eliminado.');
+        return redirect()->route('documents.signers', $document)->with('status', __('Firmante eliminado.'));
     }
 
     // ---------------------------------------------------------------------
@@ -101,15 +101,15 @@ class InvitationController extends Controller
 
         if ($invitation->status === 'signed') {
             return view('invitations.message', [
-                'title' => 'Ya has firmado',
-                'message' => 'Gracias, tu firma ya consta en este documento.',
+                'title' => __('Ya has firmado'),
+                'message' => __('Gracias, tu firma ya consta en este documento.'),
             ]);
         }
 
         if (! $invitation->isMyTurn()) {
             return view('invitations.message', [
-                'title' => 'Aun no es tu turno',
-                'message' => 'Este documento se firma por orden. Te avisaremos cuando te toque.',
+                'title' => __('Aún no es tu turno'),
+                'message' => __('Este documento se firma por orden. Te avisaremos cuando te toque.'),
             ]);
         }
 
@@ -177,15 +177,15 @@ class InvitationController extends Controller
             ->firstOrFail();
 
         if (! $event->isOtpValid()) {
-            return response()->json(['message' => 'El codigo ha caducado. Solicita uno nuevo.'], 422);
+            return response()->json(['message' => __('El código ha caducado. Solicita uno nuevo.')], 422);
         }
         if ($event->attempts >= self::MAX_ATTEMPTS) {
             $event->update(['status' => 'expired']);
-            return response()->json(['message' => 'Demasiados intentos. Solicita un codigo nuevo.'], 422);
+            return response()->json(['message' => __('Demasiados intentos. Solicita un código nuevo.')], 422);
         }
         if (! Hash::check($data['otp'], $event->otp_hash)) {
             $event->increment('attempts');
-            return response()->json(['message' => 'Codigo incorrecto.', 'remaining' => self::MAX_ATTEMPTS - $event->attempts], 422);
+            return response()->json(['message' => __('Código incorrecto.'), 'remaining' => self::MAX_ATTEMPTS - $event->attempts], 422);
         }
 
         $work = $this->tempWorkDir();

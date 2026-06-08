@@ -97,7 +97,7 @@ class MultiSignerTest extends TestCase
         $this->postJson(route('sign.otp', $bruno->token))->assertForbidden();
 
         // Su pagina muestra el mensaje de espera.
-        $this->get(route('sign.show', $bruno->token))->assertOk()->assertSee('Aun no es tu turno');
+        $this->get(route('sign.show', $bruno->token))->assertOk()->assertSee('Aún no es tu turno');
     }
 
     public function test_full_multi_signer_flow_completes_document(): void
