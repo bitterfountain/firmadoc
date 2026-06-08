@@ -195,6 +195,17 @@
     "No se puede quitar a un firmante que ya firmó.": "You can't remove a signer who has already signed.",
     "Firmante eliminado.": "Signer removed.",
 
+    "Solicitar acceso Pro": "Request Pro access",
+    "Déjanos tu email y te enviaremos una invitación para activar tu cuenta profesional.": "Leave us your email and we'll send you an invitation to activate your professional account.",
+    "¿Para qué lo necesitas? (opcional)": "What do you need it for? (optional)",
+    "Solicitar invitación": "Request invitation",
+    "Gracias, hemos recibido tu solicitud. Te enviaremos una invitación pronto.": "Thank you, we've received your request. We'll send you an invitation soon.",
+    "Solicitudes de Pro": "Pro requests",
+    "Personas que han pedido acceso. Al invitar, se les envía el enlace por email.": "People who requested access. When you invite them, the link is emailed to them.",
+    "Invitar": "Invite",
+    "¿No tienes cuenta?": "Don't have an account?",
+    "Solicita acceso Pro": "Request Pro access",
+
     "Pending": "Pending",
     "Verified": "Verified",
     "Completed": "Completed",

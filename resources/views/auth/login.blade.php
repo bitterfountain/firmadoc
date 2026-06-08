@@ -33,6 +33,9 @@
             </form>
         </div>
 
-        <p class="mt-5 text-center text-xs text-faint">{{ __('¿No tienes cuenta? Pídele acceso al administrador.') }}</p>
+        <p class="mt-5 text-center text-sm text-muted">
+            {{ __('¿No tienes cuenta?') }}
+            <a href="{{ route('pro.request') }}" class="font-semibold text-accent hover:underline">{{ __('Solicita acceso Pro') }}</a>
+        </p>
     </div>
 @endsection

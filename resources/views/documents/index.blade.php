@@ -138,6 +138,30 @@
                     <p class="text-sm text-faint">{{ __('Aún no has generado invitaciones.') }}</p>
                 @endforelse
             </div>
+
+            @if ($proRequests->isNotEmpty())
+                <h3 class="mt-8 text-lg text-ink">{{ __('Solicitudes de Pro') }}</h3>
+                <p class="mt-0.5 text-sm text-muted">{{ __('Personas que han pedido acceso. Al invitar, se les envía el enlace por email.') }}</p>
+                <div class="mt-3 space-y-2">
+                    @foreach ($proRequests as $req)
+                        <div class="card flex items-center justify-between gap-3 p-3">
+                            <div class="min-w-0">
+                                <p class="truncate text-sm font-semibold text-ink">
+                                    {{ $req->email }}
+                                    @if ($req->name)<span class="font-normal text-faint">· {{ $req->name }}</span>@endif
+                                </p>
+                                @if ($req->message)
+                                    <p class="truncate text-xs text-muted">{{ $req->message }}</p>
+                                @endif
+                            </div>
+                            <form method="POST" action="{{ route('pro.request.invite', $req) }}">
+                                @csrf
+                                <button class="btn btn-primary px-3 py-1.5 text-xs">{{ __('Invitar') }}</button>
+                            </form>
+                        </div>
+                    @endforeach
+                </div>
+            @endif
         </section>
     @endif
 @endsection

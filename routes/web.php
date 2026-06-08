@@ -7,6 +7,7 @@ use App\Http\Controllers\HomeController;
 use App\Http\Controllers\InvitationController;
 use App\Http\Controllers\InviteController;
 use App\Http\Controllers\LocaleController;
+use App\Http\Controllers\ProRequestController;
 use App\Http\Controllers\QuickSignController;
 use App\Http\Controllers\SignatureController;
 use App\Http\Middleware\EnsureProActive;
@@ -21,6 +22,10 @@ Route::get('/lang/{locale}', [LocaleController::class, 'switch'])->name('locale.
 // Paginas legales (publicas).
 Route::view('/aviso-legal', 'legal.aviso')->name('legal.aviso');
 Route::view('/privacidad', 'legal.privacidad')->name('legal.privacy');
+
+// Solicitar acceso Pro dejando el email (publico).
+Route::get('/solicitar-pro', [ProRequestController::class, 'create'])->name('pro.request');
+Route::post('/solicitar-pro', [ProRequestController::class, 'store'])->middleware('throttle:6,1')->name('pro.request.store');
 
 // Invitaciones de un solo uso -> cuenta profesional gratis (publico).
 Route::controller(InviteController::class)->group(function () {
@@ -48,6 +53,7 @@ Route::controller(QuickSignController::class)->prefix('firmar')->name('quick.')-
 // --- Zona privada del propietario (requiere login + cuenta Pro vigente) ---
 Route::middleware(['auth', EnsureProActive::class])->group(function () {
     Route::post('/invitaciones', [AdminInviteController::class, 'store'])->name('invites.store');
+    Route::post('/solicitudes/{proRequest}/invitar', [ProRequestController::class, 'invite'])->name('pro.request.invite');
 
     Route::controller(DocumentController::class)->prefix('documents')->name('documents.')->group(function () {
         Route::get('/', 'index')->name('index');
