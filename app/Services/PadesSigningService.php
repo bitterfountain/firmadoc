@@ -37,9 +37,11 @@ class PadesSigningService
      *
      * @param  array{reason?:string,name?:string,location?:string}  $meta
      */
-    public function sign(string $inAbs, string $outAbs, array $meta = []): void
+    public function sign(string $inAbs, string $outAbs, array $meta = [], array $override = []): void
     {
-        $cfg = config('docsigner.pades');
+        // $override permite firmar con el certificado propio del usuario
+        // (p. ej. ['backend' => 'pkcs12', 'p12' => ..., 'p12_pass' => ...]).
+        $cfg = array_replace(config('docsigner.pades'), $override);
 
         $args = [
             $cfg['python'],

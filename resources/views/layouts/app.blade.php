@@ -33,6 +33,7 @@
 
                 @auth
                     <div class="flex items-center gap-3 text-sm">
+                        <a href="{{ route('cert.index') }}" class="hidden text-muted transition-colors hover:text-ink sm:inline">{{ __('Certificado') }}</a>
                         @if (auth()->user()->is_admin)
                             <a href="{{ route('admin.visits') }}" class="hidden text-muted transition-colors hover:text-ink sm:inline">{{ __('Visitas') }}</a>
                         @endif

@@ -83,4 +83,26 @@ trait HandlesDocumentFiles
             File::deleteDirectory($dir);
         }
     }
+
+    /**
+     * Si el propietario del documento tiene certificado propio, materializa su
+     * .p12 en el directorio de trabajo y devuelve el override para PAdES (pkcs12).
+     * Si no, devuelve [] (se usa el certificado global por defecto).
+     */
+    protected function ownerCertOverride(\App\Models\Document $document, string $work): array
+    {
+        $owner = $document->user;
+        if (! $owner || ! $owner->hasSigningCert()) {
+            return [];
+        }
+
+        $p12 = $work.DIRECTORY_SEPARATOR.'owner.p12';
+        file_put_contents($p12, base64_decode($owner->signing_cert));
+
+        return [
+            'backend' => 'pkcs12',
+            'p12' => $p12,
+            'p12_pass' => (string) $owner->signing_cert_password,
+        ];
+    }
 }

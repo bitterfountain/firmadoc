@@ -10,6 +10,7 @@ use App\Http\Controllers\LocaleController;
 use App\Http\Controllers\ProRequestController;
 use App\Http\Controllers\QuickSignController;
 use App\Http\Controllers\SignatureController;
+use App\Http\Controllers\SigningCertController;
 use App\Http\Controllers\VisitAnalyticsController;
 use App\Http\Middleware\EnsureProActive;
 use Illuminate\Support\Facades\Route;
@@ -56,6 +57,11 @@ Route::middleware(['auth', EnsureProActive::class])->group(function () {
     Route::post('/invitaciones', [AdminInviteController::class, 'store'])->name('invites.store');
     Route::post('/solicitudes/{proRequest}/invitar', [ProRequestController::class, 'invite'])->name('pro.request.invite');
     Route::get('/admin/visitas', [VisitAnalyticsController::class, 'index'])->name('admin.visits');
+
+    // Certificado de firma propio (PAdES pkcs12).
+    Route::get('/certificado', [SigningCertController::class, 'index'])->name('cert.index');
+    Route::post('/certificado', [SigningCertController::class, 'store'])->name('cert.store');
+    Route::delete('/certificado', [SigningCertController::class, 'destroy'])->name('cert.destroy');
 
     Route::controller(DocumentController::class)->prefix('documents')->name('documents.')->group(function () {
         Route::get('/', 'index')->middleware('track:app')->name('index');

@@ -141,10 +141,11 @@ class SignatureController extends Controller
             if ($pades->isEnabled()) {
                 try {
                     $sealedAbs = $work.DIRECTORY_SEPARATOR.'sealed.pdf';
+                    $override = $this->ownerCertOverride($document, $work);
                     $pades->sign($signedAbs, $sealedAbs, [
                         'reason' => 'Firma electronica con verificacion de identidad por email',
                         'name' => $event->signer_name,
-                    ]);
+                    ], $override);
                     $finalAbs = $sealedAbs;
                     $padesApplied = true;
                 } catch (Throwable $e) {

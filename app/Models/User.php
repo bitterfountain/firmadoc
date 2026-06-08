@@ -24,12 +24,23 @@ class User extends Authenticatable
         'password',
         'pro_until',
         'is_admin',
+        'signing_cert',
+        'signing_cert_password',
+        'signing_cert_subject',
+        'signing_cert_name',
+        'signing_cert_expires_at',
     ];
 
     /** Cuenta profesional activa: sin caducidad (NULL) o aún vigente. */
     public function proActive(): bool
     {
         return $this->pro_until === null || $this->pro_until->isFuture();
+    }
+
+    /** ¿El usuario ha subido un certificado propio de firma? */
+    public function hasSigningCert(): bool
+    {
+        return ! empty($this->signing_cert);
     }
 
     /**
@@ -54,6 +65,9 @@ class User extends Authenticatable
             'password' => 'hashed',
             'pro_until' => 'datetime',
             'is_admin' => 'boolean',
+            'signing_cert' => 'encrypted',
+            'signing_cert_password' => 'encrypted',
+            'signing_cert_expires_at' => 'date',
         ];
     }
 }

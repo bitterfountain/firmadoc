@@ -246,10 +246,11 @@ class InvitationController extends Controller
             if ($allSigned && $pades->isEnabled()) {
                 try {
                     $sealedAbs = $work.DIRECTORY_SEPARATOR.'sealed.pdf';
+                    $override = $this->ownerCertOverride($document, $work);
                     $pades->sign($signedAbs, $sealedAbs, [
                         'reason' => 'Firma electronica multiparte con verificacion de identidad',
                         'name' => $event->signer_name,
-                    ]);
+                    ], $override);
                     $finalAbs = $sealedAbs;
                     $padesApplied = true;
                 } catch (Throwable $e) {
