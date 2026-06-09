@@ -2,6 +2,7 @@
 
 namespace App\Services;
 
+use Illuminate\Support\Facades\Http;
 use RuntimeException;
 use Symfony\Component\Process\Exception\ProcessFailedException;
 use Symfony\Component\Process\Process;
@@ -20,7 +21,16 @@ class PadesSigningService
     {
         $cfg = config('docsigner.pades');
 
-        if (! ($cfg['enabled'] ?? false) || ! is_file($cfg['script'])) {
+        if (! ($cfg['enabled'] ?? false)) {
+            return false;
+        }
+
+        // Nodo de firma remoto: el sellado lo hace otro equipo (token QES).
+        if (! empty($cfg['remote_url'])) {
+            return true;
+        }
+
+        if (! is_file($cfg['script'])) {
             return false;
         }
 
@@ -33,6 +43,30 @@ class PadesSigningService
     }
 
     /**
+     * Sella delegando en el nodo de firma remoto (equipo con el token QES).
+     * Envia el PDF por HTTPS y guarda el PDF sellado que devuelve.
+     */
+    private function signRemote(string $inAbs, string $outAbs, array $meta, string $url, string $token): void
+    {
+        $response = Http::timeout(180)
+            ->withToken($token)
+            ->withHeaders([
+                'X-Sign-Reason' => (string) ($meta['reason'] ?? ''),
+                'X-Sign-Name' => (string) ($meta['name'] ?? ''),
+                'X-Sign-Location' => (string) ($meta['location'] ?? ''),
+            ])
+            ->withBody(file_get_contents($inAbs), 'application/pdf')
+            ->post($url);
+
+        if (! $response->successful()) {
+            throw new RuntimeException('El nodo de firma remoto rechazo el sellado: HTTP '
+                . $response->status() . ' ' . mb_substr($response->body(), 0, 300));
+        }
+
+        file_put_contents($outAbs, $response->body());
+    }
+
+    /**
      * Firma $inAbs con PAdES y escribe el resultado en $outAbs.
      *
      * @param  array{reason?:string,name?:string,location?:string}  $meta
@@ -42,6 +76,14 @@ class PadesSigningService
         // $override permite firmar con el certificado propio del usuario
         // (p. ej. ['backend' => 'pkcs12', 'p12' => ..., 'p12_pass' => ...]).
         $cfg = array_replace(config('docsigner.pades'), $override);
+
+        // Si hay nodo remoto (token QES en casa) y no se fuerza un cert propio,
+        // delegamos el sellado a ese nodo por HTTPS.
+        if (empty($override) && ! empty($cfg['remote_url'])) {
+            $this->signRemote($inAbs, $outAbs, $meta, $cfg['remote_url'], (string) ($cfg['remote_token'] ?? ''));
+
+            return;
+        }
 
         $args = [
             $cfg['python'],

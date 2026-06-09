@@ -35,6 +35,13 @@ return [
     */
     'pades' => [
         'enabled' => env('PADES_ENABLED', false),
+
+        // Nodo de firma REMOTO (equipo en casa con el token QES). Si se define,
+        // el sellado PAdES se delega por HTTPS a ese nodo (que tiene el token
+        // enchutado y firma con pyHanko + pkcs11). Deja vacio para firmar local.
+        'remote_url' => env('PADES_REMOTE_URL', ''),
+        'remote_token' => env('PADES_REMOTE_TOKEN', ''),
+
         // Interprete de Python. Windows: ruta completa; Ubuntu: "python3".
         'python' => env('PYTHON_PATH', 'python3'),
         'script' => base_path('scripts/pades_sign.py'),
