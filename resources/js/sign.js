@@ -335,6 +335,7 @@ async function init(root) {
     methodEmail?.addEventListener('change', updatePhoneVisibility);
     methodSms?.addEventListener('change', updatePhoneVisibility);
     methodBoth?.addEventListener('change', updatePhoneVisibility);
+    updatePhoneVisibility();
 
     const setModalStatus = (msg, isError = false) => {
         modalStatus.textContent = msg;
@@ -345,6 +346,9 @@ async function init(root) {
         stepOtp?.classList.add('hidden');
         setModalStatus('');
         modal.classList.replace('hidden', 'flex');
+        if (methodEmail) methodEmail.checked = true;
+        updatePhoneVisibility();
+        nameInput?.focus();
     };
     const closeModal = () => modal.classList.replace('flex', 'hidden');
 
