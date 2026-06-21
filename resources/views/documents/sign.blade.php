@@ -156,7 +156,7 @@
 
                     <div data-role="phone-row" class="hidden">
                         <input data-role="signer-phone" type="tel" placeholder="{{ __('+34 600 000 000') }}" autocomplete="tel"
-                               value="{{ $signerPhone }}" class="input">
+                               value="{{ $signerPhone ?? '' }}" class="input">
                     </div>
 
                     <button data-action="send-code" type="button" class="btn btn-primary w-full">{{ __('Enviar código') }}</button>
