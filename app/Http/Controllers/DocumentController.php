@@ -59,6 +59,8 @@ class DocumentController extends Controller
             'original_name' => $file->getClientOriginalName(),
             'source_format' => $ext,
             'status' => 'uploaded',
+            'signing_mode' => $request->input('signing_mode', 'sequential'),
+            'webhook_url' => $request->input('webhook_url'),
         ]);
 
         $dir = "documents/{$document->id}";
@@ -129,7 +131,7 @@ class DocumentController extends Controller
         $path = $document->signed_path ?? $document->pdf_path;
         abort_unless($path && Storage::disk($this->docDisk())->exists($path), 404);
 
-        $name = pathinfo($document->original_name, PATHINFO_FILENAME) . '-firmado.pdf';
+        $name = pathinfo($document->original_name, PATHINFO_FILENAME).'-firmado.pdf';
 
         return Storage::disk($this->docDisk())->download($path, $name);
     }

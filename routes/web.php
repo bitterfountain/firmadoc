@@ -50,6 +50,9 @@ Route::controller(QuickSignController::class)->prefix('firmar')->name('quick.')-
     Route::get('/{eid}/pdf', 'pdf')->whereAlphaNumeric('eid')->name('pdf');
     Route::post('/{eid}/signed', 'finalize')->whereAlphaNumeric('eid')->name('finalize');
     Route::get('/{eid}/descargar', 'download')->whereAlphaNumeric('eid')->name('download');
+    // Gestion multi-firmante anonimo
+    Route::get('/multi/{id}', 'manage')->whereNumber('id')->name('multi.manage');
+    Route::get('/multi/{id}/descargar', 'multiDownload')->whereNumber('id')->name('multi.download');
 });
 
 // --- Zona privada del propietario (requiere login + cuenta Pro vigente) ---
@@ -85,6 +88,9 @@ Route::middleware(['auth', EnsureProActive::class])->group(function () {
         Route::get('/signers', 'index')->name('signers');
         Route::post('/invitations', 'store')->name('invitations.store');
         Route::delete('/invitations/{invitation}', 'destroy')->name('invitations.destroy');
+        Route::post('/signing-mode', 'updateMode')->name('signing-mode');
+        Route::post('/witness', 'setWitness')->name('witness');
+        Route::post('/webhook', 'updateWebhook')->name('webhook');
     });
 });
 
@@ -95,4 +101,8 @@ Route::controller(InvitationController::class)->prefix('sign/{token}')->name('si
     Route::post('/otp', 'requestOtp')->middleware('throttle:6,1')->name('otp');
     Route::post('/otp/verify', 'verifyOtp')->middleware('throttle:10,1')->name('otpVerify');
     Route::post('/signed', 'finalize')->name('finalize');
+    Route::post('/decline', 'decline')->name('decline');
 });
+
+// Testigo: confirmacion publica
+Route::get('/witness/{token}', [InvitationController::class, 'confirmWitness'])->name('sign.witness');

@@ -3,8 +3,10 @@
 namespace App\Http\Controllers;
 
 use App\Concerns\HandlesDocumentFiles;
+use App\Mail\SignatureCompletedMail;
 use App\Mail\SignatureInviteMail;
 use App\Mail\SignatureOtpMail;
+use App\Mail\WitnessNotificationMail;
 use App\Models\Document;
 use App\Models\SignatureEvent;
 use App\Models\SignatureInvitation;
@@ -13,6 +15,7 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
@@ -24,7 +27,10 @@ class InvitationController extends Controller
     use HandlesDocumentFiles;
 
     private const OTP_MINUTES = 10;
+
     private const MAX_ATTEMPTS = 5;
+
+    private const DEFAULT_EXPIRY_DAYS = 30;
 
     // ---------------------------------------------------------------------
     // Lado propietario: gestionar firmantes
@@ -47,14 +53,20 @@ class InvitationController extends Controller
     /** Anade un firmante y le envia la invitacion por email. */
     public function store(Request $request, Document $document): RedirectResponse
     {
-        abort_unless($document->user_id === auth()->id(), 403);
+        if ($document->user_id) {
+            abort_unless($document->user_id === auth()->id(), 403);
+        }
 
         $data = $request->validate([
             'name' => 'required|string|max:120',
             'email' => 'required|email|max:190',
+            'phone' => 'nullable|string|max:30',
         ]);
 
         $position = (int) $document->invitations()->max('position') + 1;
+        $expiry = $request->filled('expires_at')
+            ? now()->addDays((int) $request->input('expires_at'))
+            : now()->addDays(self::DEFAULT_EXPIRY_DAYS);
 
         $invitation = $document->invitations()->create([
             'name' => $data['name'],
@@ -62,22 +74,27 @@ class InvitationController extends Controller
             'token' => Str::random(64),
             'position' => $position,
             'status' => 'pending',
+            'expires_at' => $expiry,
         ]);
 
         Mail::to($invitation->email)->send(new SignatureInviteMail(
             $invitation->name,
             $document->original_name,
             route('sign.show', $invitation->token),
+            $expiry,
+            $document->isSequential() ? $position : null,
         ));
 
         return redirect()->route('documents.signers', $document)
             ->with('status', __('Invitación enviada a :email.', ['email' => $invitation->email]));
     }
 
-    /** Elimina una invitacion pendiente. */
+    /** Elimina una invitacion pendiente o declinada. */
     public function destroy(Document $document, SignatureInvitation $invitation): RedirectResponse
     {
-        abort_unless($document->user_id === auth()->id(), 403);
+        if ($document->user_id) {
+            abort_unless($document->user_id === auth()->id(), 403);
+        }
         abort_unless($invitation->document_id === $document->id, 404);
 
         if ($invitation->status === 'signed') {
@@ -89,31 +106,129 @@ class InvitationController extends Controller
         return redirect()->route('documents.signers', $document)->with('status', __('Firmante eliminado.'));
     }
 
+    /** Actualiza el modo de firma del documento (sequential/parallel). */
+    public function updateMode(Request $request, Document $document): RedirectResponse
+    {
+        if ($document->user_id) {
+            abort_unless($document->user_id === auth()->id(), 403);
+        }
+
+        $data = $request->validate([
+            'signing_mode' => 'required|in:sequential,parallel',
+        ]);
+
+        $document->update(['signing_mode' => $data['signing_mode']]);
+
+        return back()->with('status', __('Modo de firma actualizado.'));
+    }
+
+    /** Define testigo (witness) para el documento. */
+    public function setWitness(Request $request, Document $document): RedirectResponse
+    {
+        if ($document->user_id) {
+            abort_unless($document->user_id === auth()->id(), 403);
+        }
+
+        $data = $request->validate([
+            'witness_name' => 'required|string|max:120',
+            'witness_email' => 'required|email|max:190',
+        ]);
+
+        $token = Str::random(64);
+
+        $document->update([
+            'witness_name' => $data['witness_name'],
+            'witness_email' => $data['witness_email'],
+            'witness_token' => $token,
+        ]);
+
+        Mail::to($data['witness_email'])->send(new WitnessNotificationMail(
+            $data['witness_name'],
+            $document->original_name,
+            route('sign.witness', $token),
+        ));
+
+        return back()->with('status', __('Testigo añadido y notificado.'));
+    }
+
+    /** Confirma el testigo que presencio las firmas. */
+    public function confirmWitness(string $token): View
+    {
+        $document = Document::where('witness_token', $token)->firstOrFail();
+
+        if ($document->witness_confirmed_at) {
+            return view('invitations.message', [
+                'title' => __('Testigo ya confirmado'),
+                'message' => __('Ya dejaste constancia como testigo de este documento.'),
+            ]);
+        }
+
+        $document->update(['witness_confirmed_at' => now()]);
+
+        return view('invitations.message', [
+            'title' => __('Testigo confirmado'),
+            'message' => __('Has quedado registrado como testigo del documento ":doc".', ['doc' => $document->original_name]),
+        ]);
+    }
+
+    /** Actualiza la URL de webhook del documento. */
+    public function updateWebhook(Request $request, Document $document): RedirectResponse
+    {
+        if ($document->user_id) {
+            abort_unless($document->user_id === auth()->id(), 403);
+        }
+
+        $data = $request->validate([
+            'webhook_url' => 'nullable|url|max:500',
+        ]);
+
+        $document->update(['webhook_url' => $data['webhook_url']]);
+
+        return back()->with('status', __('Webhook actualizado.'));
+    }
+
     // ---------------------------------------------------------------------
     // Lado firmante: flujo publico por token
     // ---------------------------------------------------------------------
 
-    /** Pagina publica de firma para un invitado. */
+    /** Pagina publica de firma para un invitado (portal del firmante). */
     public function show(string $token): View
     {
         $invitation = $this->resolve($token);
         $document = $invitation->document;
 
         if ($invitation->status === 'signed') {
+            return view('invitations.portal', [
+                'invitation' => $invitation,
+                'document' => $document,
+                'allInvitations' => $document->invitations()->get(),
+                'alreadySigned' => true,
+            ]);
+        }
+
+        if ($invitation->status === 'declined') {
             return view('invitations.message', [
-                'title' => __('Ya has firmado'),
-                'message' => __('Gracias, tu firma ya consta en este documento.'),
+                'title' => __('Has declinado firmar'),
+                'message' => __('Registramos que no firmarás este documento.'),
+            ]);
+        }
+
+        if ($invitation->isExpired()) {
+            return view('invitations.message', [
+                'title' => __('Invitación caducada'),
+                'message' => __('El plazo para firmar este documento ha vencido. Contacta con quien te invitó.'),
             ]);
         }
 
         if (! $invitation->isMyTurn()) {
-            return view('invitations.message', [
-                'title' => __('Aún no es tu turno'),
-                'message' => __('Este documento se firma por orden. Te avisaremos cuando te toque.'),
+            return view('invitations.portal', [
+                'invitation' => $invitation,
+                'document' => $document,
+                'allInvitations' => $document->invitations()->get(),
+                'notYourTurn' => true,
             ]);
         }
 
-        // Reutiliza la vista de firma con URLs basadas en el token.
         return view('documents.sign', [
             'document' => $document,
             'headerTitle' => $document->original_name,
@@ -125,6 +240,26 @@ class InvitationController extends Controller
             'signerName' => $invitation->name,
             'signerEmail' => $invitation->email,
         ]);
+    }
+
+    /** Declina firmar. */
+    public function decline(string $token): RedirectResponse
+    {
+        $invitation = $this->resolve($token);
+
+        if ($invitation->status !== 'pending') {
+            return redirect()->route('sign.show', $token);
+        }
+
+        $invitation->update(['status' => 'declined', 'declined_at' => now()]);
+
+        $this->notifyWebhook($invitation->document, 'signer_declined', [
+            'name' => $invitation->name,
+            'email' => $invitation->email,
+            'position' => $invitation->position,
+        ]);
+
+        return redirect()->route('sign.show', $token);
     }
 
     /** Sirve la version actual del PDF (con las firmas previas). */
@@ -140,12 +275,17 @@ class InvitationController extends Controller
     }
 
     /** Paso 1: enviar OTP (al email fijado en la invitacion). */
-    public function requestOtp(string $token): JsonResponse
+    public function requestOtp(Request $request, string $token): JsonResponse
     {
         $invitation = $this->resolve($token);
         abort_unless($invitation->isMyTurn(), 403);
 
         $code = (string) random_int(100000, 999999);
+        $verificationMethod = $request->input('method', 'email');
+
+        if ($verificationMethod === 'sms' && ! $request->filled('phone')) {
+            return response()->json(['message' => __('Se requiere un teléfono para verificación SMS.')], 422);
+        }
 
         $event = SignatureEvent::create([
             'document_id' => $invitation->document_id,
@@ -156,6 +296,8 @@ class InvitationController extends Controller
             'user_agent' => substr((string) request()->userAgent(), 0, 512),
             'otp_hash' => Hash::make($code),
             'otp_expires_at' => now()->addMinutes(self::OTP_MINUTES),
+            'phone' => $request->input('phone'),
+            'verification_method' => $verificationMethod,
             'status' => 'pending',
         ]);
 
@@ -163,14 +305,27 @@ class InvitationController extends Controller
             new SignatureOtpMail($code, $invitation->document->original_name, self::OTP_MINUTES)
         );
 
-        return response()->json(['event_id' => $event->id]);
+        // SMS: si se solicito, enviar por SMS ademas (o en lugar de email)
+        $smsSent = false;
+        if ($verificationMethod === 'sms' || $request->boolean('sms_also')) {
+            $smsSent = $this->sendSmsOtp($request->input('phone'), $code);
+        }
+
+        return response()->json([
+            'event_id' => $event->id,
+            'sms_sent' => $smsSent,
+        ]);
     }
 
-    /** Paso 2: verificar OTP. */
+    /** Paso 2: verificar OTP + opcionalmente subir DNI o certificado propio. */
     public function verifyOtp(Request $request, string $token): JsonResponse
     {
         $invitation = $this->resolve($token);
-        $data = $request->validate(['event_id' => 'required|integer', 'otp' => 'required|string']);
+        $data = $request->validate([
+            'event_id' => 'required|integer',
+            'otp' => 'required|string',
+            'id_document' => 'nullable|file|mimes:jpg,jpeg,png,pdf|max:10240',
+        ]);
 
         $event = SignatureEvent::where('id', $data['event_id'])
             ->where('invitation_id', $invitation->id)
@@ -181,11 +336,20 @@ class InvitationController extends Controller
         }
         if ($event->attempts >= self::MAX_ATTEMPTS) {
             $event->update(['status' => 'expired']);
+
             return response()->json(['message' => __('Demasiados intentos. Solicita un código nuevo.')], 422);
         }
         if (! Hash::check($data['otp'], $event->otp_hash)) {
             $event->increment('attempts');
+
             return response()->json(['message' => __('Código incorrecto.'), 'remaining' => self::MAX_ATTEMPTS - $event->attempts], 422);
+        }
+
+        // Guardar documento de identidad si se subio
+        $idDocPath = null;
+        if ($request->hasFile('id_document')) {
+            $idDir = "documents/{$invitation->document_id}/id_docs";
+            $idDocPath = $request->file('id_document')->store("{$idDir}/{$event->id}", $this->docDisk());
         }
 
         $work = $this->tempWorkDir();
@@ -196,7 +360,14 @@ class InvitationController extends Controller
         } finally {
             $this->cleanupTemp($work);
         }
-        $event->update(['verified_at' => now(), 'status' => 'verified', 'original_sha256' => $originalHash]);
+
+        $event->update([
+            'verified_at' => now(),
+            'status' => 'verified',
+            'original_sha256' => $originalHash,
+            'id_document_path' => $idDocPath,
+            'phone_verified_at' => $event->verification_method === 'sms' ? now() : null,
+        ]);
 
         return response()->json([
             'audit' => [
@@ -204,14 +375,16 @@ class InvitationController extends Controller
                 'signer_name' => $event->signer_name,
                 'signer_email' => $event->signer_email,
                 'verified_at' => $event->verified_at->toIso8601String(),
-                'verified_at_human' => $event->verified_at->format('d/m/Y H:i:s') . ' UTC',
+                'verified_at_human' => $event->verified_at->format('d/m/Y H:i:s').' UTC',
                 'ip_address' => $event->ip_address,
                 'document_hash' => $originalHash,
+                'verification_method' => $event->verification_method,
+                'id_document_attached' => $idDocPath !== null,
             ],
         ]);
     }
 
-    /** Paso 3: recibir el PDF firmado; sellar PAdES solo cuando firma el ultimo. */
+    /** Paso 3: recibir el PDF firmado; sellar PAdES. */
     public function finalize(Request $request, string $token, PadesSigningService $pades): JsonResponse
     {
         $invitation = $this->resolve($token);
@@ -219,7 +392,9 @@ class InvitationController extends Controller
 
         $request->validate([
             'event_id' => 'required|integer',
-            'signed' => 'required|file|mimes:pdf|max:' . (int) config('docsigner.max_upload_kb'),
+            'signed' => 'required|file|mimes:pdf|max:'.(int) config('docsigner.max_upload_kb'),
+            'signing_cert' => 'nullable|file|mimes:p12,pfx|max:10240',
+            'cert_password' => 'nullable|string|max:255',
         ]);
 
         $event = SignatureEvent::where('id', $request->integer('event_id'))
@@ -229,10 +404,19 @@ class InvitationController extends Controller
 
         $dir = "documents/{$document->id}";
 
+        // Guardar certificado propio del firmante si subio uno
+        if ($request->hasFile('signing_cert')) {
+            $certContent = base64_encode(file_get_contents($request->file('signing_cert')->getRealPath()));
+            $event->update([
+                'signing_cert' => $certContent,
+                'signing_cert_password' => $request->input('cert_password'),
+                'signing_cert_subject' => $request->input('cert_subject'),
+            ]);
+        }
+
         $invitation->update(['status' => 'signed', 'signed_at' => now()]);
 
-        // ¿Quedan firmantes pendientes?
-        $allSigned = ! $document->invitations()->where('status', '!=', 'signed')->exists();
+        $allSigned = $document->allSigned();
 
         $work = $this->tempWorkDir();
         $padesApplied = false;
@@ -241,12 +425,11 @@ class InvitationController extends Controller
             $signedAbs = $work.DIRECTORY_SEPARATOR.'signed.pdf';
             copy($request->file('signed')->getRealPath(), $signedAbs);
 
-            // PAdES solo cuando ha firmado el ultimo (re-sellar romperia firmas previas).
             $finalAbs = $signedAbs;
             if ($allSigned && $pades->isEnabled()) {
                 try {
                     $sealedAbs = $work.DIRECTORY_SEPARATOR.'sealed.pdf';
-                    $override = $this->ownerCertOverride($document, $work);
+                    $override = $this->certOverrideForEvent($document, $event, $work);
                     $pades->sign($signedAbs, $sealedAbs, [
                         'reason' => 'Firma electronica multiparte con verificacion de identidad',
                         'name' => $event->signer_name,
@@ -270,26 +453,163 @@ class InvitationController extends Controller
             'status' => 'completed',
         ]);
 
+        $newStatus = $allSigned ? 'completed' : 'in_progress';
         $document->update([
             'signed_path' => "{$dir}/signed.pdf",
-            'status' => $allSigned ? 'completed' : 'in_progress',
+            'status' => $newStatus,
         ]);
+
+        // Notificar webhook si hay
+        $this->notifyWebhook($document, 'signer_completed', [
+            'name' => $invitation->name,
+            'email' => $invitation->email,
+            'all_signed' => $allSigned,
+            'remaining' => $document->pendingInvitations()->count(),
+        ]);
+
+        // Si todos firmaron, enviar comprobantes
+        if ($allSigned) {
+            $this->sendCompletionEmails($document, $padesApplied);
+            $this->notifyWitnessIfSet($document);
+            $this->notifyWebhook($document, 'document_completed', [
+                'document_name' => $document->original_name,
+                'signers' => $document->invitations()->count(),
+                'pades_applied' => $padesApplied,
+            ]);
+        }
 
         return response()->json([
             'ok' => true,
             'all_signed' => $allSigned,
-            'download_url' => route('documents.download', $document),
+            'download_url' => $this->downloadUrl($document),
         ]);
     }
+
+    /** Reenviar OTP (desde el portal del firmante, sin pasar por el dueno). */
+    public function resendOtp(string $token): RedirectResponse
+    {
+        $invitation = $this->resolve($token);
+        abort_unless($invitation->isPending() && $invitation->isMyTurn(), 403);
+
+        return redirect()->route('sign.show', $token);
+    }
+
+    // ---------------------------------------------------------------------
+    // Helpers privados
+    // ---------------------------------------------------------------------
 
     private function resolve(string $token): SignatureInvitation
     {
         return SignatureInvitation::with('document')->where('token', $token)->firstOrFail();
     }
 
-    /** Ruta del PDF "actual" a firmar: la version firmada en curso, o la normalizada. */
+    /** Ruta del PDF "actual" a firmar. */
     private function currentPdfPath(Document $document): ?string
     {
         return $document->signed_path ?: $document->pdf_path;
+    }
+
+    private function downloadUrl(Document $document): string
+    {
+        if ($document->user_id) {
+            return route('documents.download', $document);
+        }
+
+        return route('quick.multi.download', $document->id);
+    }
+
+    /** Override de certificado para PAdES: el del firmante si subio, o el del dueno. */
+    private function certOverrideForEvent(Document $document, SignatureEvent $event, string $work): array
+    {
+        if (! empty($event->signing_cert)) {
+            $p12 = $work.DIRECTORY_SEPARATOR.'signer.p12';
+            file_put_contents($p12, base64_decode($event->signing_cert));
+
+            return [
+                'backend' => 'pkcs12',
+                'p12' => $p12,
+                'p12_pass' => (string) $event->signing_cert_password,
+            ];
+        }
+
+        return $this->ownerCertOverride($document, $work);
+    }
+
+    /** Envia el PDF firmado + comprobante de auditoria a cada firmante. */
+    private function sendCompletionEmails(Document $document, bool $padesApplied): void
+    {
+        $disk = Storage::disk($this->docDisk());
+        $path = $document->signed_path;
+        if (! $path || ! $disk->exists($path)) {
+            return;
+        }
+
+        $pdfBytes = $disk->get($path);
+        $name = pathinfo($document->original_name, PATHINFO_FILENAME).'-firmado.pdf';
+
+        foreach ($document->invitations()->where('status', 'signed')->get() as $inv) {
+            try {
+                Mail::to($inv->email)->send(new SignatureCompletedMail(
+                    $inv->name,
+                    $document->original_name,
+                    $pdfBytes,
+                    $name,
+                    $padesApplied,
+                ));
+            } catch (Throwable $e) {
+                report($e);
+            }
+        }
+    }
+
+    /** Notifica al testigo cuando todas las firmas se completan. */
+    private function notifyWitnessIfSet(Document $document): void
+    {
+        if (! $document->witness_email || ! $document->witness_name) {
+            return;
+        }
+
+        try {
+            Mail::to($document->witness_email)->send(new WitnessNotificationMail(
+                $document->witness_name,
+                $document->original_name,
+                route('sign.witness', $document->witness_token),
+                true,
+            ));
+        } catch (Throwable $e) {
+            report($e);
+        }
+    }
+
+    /** Envia notificacion webhook si el documento tiene URL configurada. */
+    private function notifyWebhook(Document $document, string $event, array $payload): void
+    {
+        if (! $document->webhook_url) {
+            return;
+        }
+
+        try {
+            Http::timeout(10)->post($document->webhook_url, array_merge($payload, [
+                'event' => $event,
+                'document_id' => $document->id,
+                'document_name' => $document->original_name,
+            ]));
+        } catch (Throwable $e) {
+            report($e);
+        }
+    }
+
+    /** Envia OTP por SMS (requiere integracion externa; placeholder). */
+    private function sendSmsOtp(?string $phone, string $code): bool
+    {
+        if (! $phone) {
+            return false;
+        }
+
+        // Integrar con Twilio/Vonage/etc. cuando se configure
+        // $sid = config('services.twilio.sid');
+        // if (! $sid) return false;
+
+        return false;
     }
 }

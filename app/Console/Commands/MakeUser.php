@@ -55,7 +55,7 @@ class MakeUser extends Command
             $this->line('Marcado como administrador.');
         }
         if ($generated !== null) {
-            $this->line('Contrasena generada: ' . $generated);
+            $this->line('Contrasena generada: '.$generated);
         }
 
         return self::SUCCESS;

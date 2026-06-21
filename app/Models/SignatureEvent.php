@@ -11,18 +11,26 @@ class SignatureEvent extends Model
         'document_id', 'invitation_id', 'signer_name', 'signer_email', 'ip_address', 'user_agent',
         'otp_hash', 'otp_expires_at', 'attempts', 'verified_at',
         'original_sha256', 'signed_sha256', 'pades_applied', 'status',
+        'verification_method', 'phone', 'phone_verified_at',
+        'id_document_path', 'signing_cert', 'signing_cert_password', 'signing_cert_subject',
     ];
 
     protected $casts = [
         'otp_expires_at' => 'datetime',
         'verified_at' => 'datetime',
+        'phone_verified_at' => 'datetime',
     ];
 
-    protected $hidden = ['otp_hash'];
+    protected $hidden = ['otp_hash', 'signing_cert_password'];
 
     public function document(): BelongsTo
     {
         return $this->belongsTo(Document::class);
+    }
+
+    public function invitation(): BelongsTo
+    {
+        return $this->belongsTo(SignatureInvitation::class);
     }
 
     public function isOtpValid(): bool
@@ -33,7 +41,7 @@ class SignatureEvent extends Model
     /** Referencia legible y unica del evento de firma (p.ej. DS-00007-A1B2C3). */
     public function getReferenceAttribute(): string
     {
-        return 'DS-' . str_pad((string) $this->id, 5, '0', STR_PAD_LEFT)
-            . '-' . strtoupper(substr(sha1($this->id . $this->created_at), 0, 6));
+        return 'DS-'.str_pad((string) $this->id, 5, '0', STR_PAD_LEFT)
+            .'-'.strtoupper(substr(sha1($this->id.$this->created_at), 0, 6));
     }
 }

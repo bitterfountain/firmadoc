@@ -60,7 +60,7 @@ class PadesSigningService
 
         if (! $response->successful()) {
             throw new RuntimeException('El nodo de firma remoto rechazo el sellado: HTTP '
-                . $response->status() . ' ' . mb_substr($response->body(), 0, 300));
+                .$response->status().' '.mb_substr($response->body(), 0, 300));
         }
 
         file_put_contents($outAbs, $response->body());
@@ -112,7 +112,7 @@ class PadesSigningService
                     array_push($args, '--pkcs11-slot', (string) $p['slot']);
                 }
                 foreach (['token' => '--pkcs11-token', 'cert_label' => '--pkcs11-cert-label',
-                          'key_label' => '--pkcs11-key-label', 'pin' => '--pkcs11-pin'] as $key => $flag) {
+                    'key_label' => '--pkcs11-key-label', 'pin' => '--pkcs11-pin'] as $key => $flag) {
                     if (! empty($p[$key])) {
                         array_push($args, $flag, $p[$key]);
                     }
@@ -142,7 +142,7 @@ class PadesSigningService
             $process->mustRun();
         } catch (ProcessFailedException $e) {
             throw new RuntimeException(
-                'pyHanko fallo al sellar: ' . trim($process->getErrorOutput() ?: $process->getOutput()),
+                'pyHanko fallo al sellar: '.trim($process->getErrorOutput() ?: $process->getOutput()),
                 previous: $e,
             );
         }

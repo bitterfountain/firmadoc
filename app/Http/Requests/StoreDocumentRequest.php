@@ -34,7 +34,7 @@ class StoreDocumentRequest extends FormRequest
     {
         return [
             'file.required' => 'Selecciona un archivo.',
-            'file.mimes' => 'Formato no soportado. Acepta: ' . implode(', ', config('docsigner.allowed_extensions')) . '.',
+            'file.mimes' => 'Formato no soportado. Acepta: '.implode(', ', config('docsigner.allowed_extensions')).'.',
             'file.max' => 'El archivo supera el tamano maximo permitido.',
         ];
     }

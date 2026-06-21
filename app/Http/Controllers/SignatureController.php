@@ -18,6 +18,7 @@ class SignatureController extends Controller
     use HandlesDocumentFiles;
 
     private const OTP_MINUTES = 10;
+
     private const MAX_ATTEMPTS = 5;
 
     /** Paso 1: el firmante introduce nombre + email; enviamos un OTP. */
@@ -71,11 +72,13 @@ class SignatureController extends Controller
 
         if ($event->attempts >= self::MAX_ATTEMPTS) {
             $event->update(['status' => 'expired']);
+
             return response()->json(['message' => __('Demasiados intentos. Solicita un código nuevo.')], 422);
         }
 
         if (! Hash::check($data['otp'], $event->otp_hash)) {
             $event->increment('attempts');
+
             return response()->json([
                 'message' => __('Código incorrecto.'),
                 'remaining' => self::MAX_ATTEMPTS - $event->attempts,
@@ -104,7 +107,7 @@ class SignatureController extends Controller
                 'signer_name' => $event->signer_name,
                 'signer_email' => $event->signer_email,
                 'verified_at' => $event->verified_at->toIso8601String(),
-                'verified_at_human' => $event->verified_at->format('d/m/Y H:i:s') . ' UTC',
+                'verified_at_human' => $event->verified_at->format('d/m/Y H:i:s').' UTC',
                 'ip_address' => $event->ip_address,
                 'document_hash' => $originalHash,
             ],
@@ -118,7 +121,7 @@ class SignatureController extends Controller
 
         $data = $request->validate([
             'event_id' => 'required|integer',
-            'signed' => 'required|file|mimes:pdf|max:' . (int) config('docsigner.max_upload_kb'),
+            'signed' => 'required|file|mimes:pdf|max:'.(int) config('docsigner.max_upload_kb'),
         ]);
 
         $event = SignatureEvent::where('id', $data['event_id'])

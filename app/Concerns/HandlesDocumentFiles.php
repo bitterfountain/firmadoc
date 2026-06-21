@@ -2,6 +2,7 @@
 
 namespace App\Concerns;
 
+use App\Models\Document;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
@@ -89,7 +90,7 @@ trait HandlesDocumentFiles
      * .p12 en el directorio de trabajo y devuelve el override para PAdES (pkcs12).
      * Si no, devuelve [] (se usa el certificado global por defecto).
      */
-    protected function ownerCertOverride(\App\Models\Document $document, string $work): array
+    protected function ownerCertOverride(Document $document, string $work): array
     {
         $owner = $document->user;
         if (! $owner || ! $owner->hasSigningCert()) {

@@ -18,16 +18,18 @@ class MakeSigningCertificate extends Command
     public function handle(): int
     {
         $dir = storage_path('app/certs');
-        $keyPath = $dir . DIRECTORY_SEPARATOR . 'key.pem';
-        $certPath = $dir . DIRECTORY_SEPARATOR . 'cert.pem';
+        $keyPath = $dir.DIRECTORY_SEPARATOR.'key.pem';
+        $certPath = $dir.DIRECTORY_SEPARATOR.'cert.pem';
 
         if (! is_dir($dir) && ! mkdir($dir, 0700, true) && ! is_dir($dir)) {
             $this->error("No se pudo crear el directorio {$dir}");
+
             return self::FAILURE;
         }
 
         if ((is_file($keyPath) || is_file($certPath)) && ! $this->option('force')) {
             $this->warn('Ya existe un certificado. Usa --force para sobrescribirlo.');
+
             return self::FAILURE;
         }
 
@@ -42,7 +44,7 @@ class MakeSigningCertificate extends Command
             keyUsage = critical, digitalSignature, nonRepudiation
             extendedKeyUsage = clientAuth, emailProtection
             CNF;
-        $cnfPath = tempnam(sys_get_temp_dir(), 'dsx') . '.cnf';
+        $cnfPath = tempnam(sys_get_temp_dir(), 'dsx').'.cnf';
         file_put_contents($cnfPath, $cnf);
 
         $config = [
@@ -56,7 +58,8 @@ class MakeSigningCertificate extends Command
         $pkey = openssl_pkey_new($config);
         if ($pkey === false) {
             @unlink($cnfPath);
-            $this->error('openssl_pkey_new fallo: ' . openssl_error_string());
+            $this->error('openssl_pkey_new fallo: '.openssl_error_string());
+
             return self::FAILURE;
         }
 
@@ -84,7 +87,7 @@ class MakeSigningCertificate extends Command
         $this->info('Certificado generado:');
         $this->line("  Clave:         {$keyPath}");
         $this->line("  Certificado:   {$certPath}");
-        $this->line("  CN:            " . $this->option('cn'));
+        $this->line('  CN:            '.$this->option('cn'));
         $this->line("  Huella SHA256: {$fingerprint}");
         $this->newLine();
         $this->warn('Es un certificado AUTOFIRMADO: sirve para sellar (tamper-evidence), pero');

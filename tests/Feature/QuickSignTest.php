@@ -43,7 +43,7 @@ class QuickSignTest extends TestCase
             // No persiste nada en BD.
             $this->assertDatabaseCount('documents', 0);
         } finally {
-            File::deleteDirectory(storage_path('app/ephemeral/' . $eid));
+            File::deleteDirectory(storage_path('app/ephemeral/'.$eid));
         }
     }
 
@@ -61,7 +61,7 @@ class QuickSignTest extends TestCase
                 'reference' => 'FD-ABCD1234',
             ])->assertOk()->assertJsonPath('ok', true);
         } finally {
-            File::deleteDirectory(storage_path('app/ephemeral/' . $eid));
+            File::deleteDirectory(storage_path('app/ephemeral/'.$eid));
         }
     }
 

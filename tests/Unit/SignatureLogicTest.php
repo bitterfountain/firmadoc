@@ -10,7 +10,7 @@ class SignatureLogicTest extends TestCase
 {
     public function test_reference_format_is_stable(): void
     {
-        $event = new SignatureEvent();
+        $event = new SignatureEvent;
         $event->id = 7;
         $event->created_at = '2026-06-06 12:00:00';
 
@@ -25,7 +25,7 @@ class SignatureLogicTest extends TestCase
         config()->set('docsigner.pades.enabled', false);
         config()->set('docsigner.pades.script', __FILE__);
 
-        $this->assertFalse((new PadesSigningService())->isEnabled());
+        $this->assertFalse((new PadesSigningService)->isEnabled());
     }
 
     public function test_pades_pemder_requires_key_and_cert(): void
@@ -36,6 +36,6 @@ class SignatureLogicTest extends TestCase
         config()->set('docsigner.pades.key', '/no/existe/key.pem');
         config()->set('docsigner.pades.cert', '/no/existe/cert.pem');
 
-        $this->assertFalse((new PadesSigningService())->isEnabled());
+        $this->assertFalse((new PadesSigningService)->isEnabled());
     }
 }

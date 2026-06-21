@@ -23,6 +23,7 @@ class CertInfo extends Command
         $info = openssl_x509_parse($certPem);
         if ($info === false) {
             $this->error('No se pudo parsear el certificado.');
+
             return self::FAILURE;
         }
 
@@ -38,11 +39,11 @@ class CertInfo extends Command
 
         $this->newLine();
         $this->line("  <fg=cyan>Sujeto (firmante):</>  {$subjectCn}");
-        $this->line("  <fg=cyan>Emisor (CA):</>        {$issuerCn}" . ($issuerOrg ? " — {$issuerOrg}" : ''));
+        $this->line("  <fg=cyan>Emisor (CA):</>        {$issuerCn}".($issuerOrg ? " — {$issuerOrg}" : ''));
         $this->line("  <fg=cyan>Validez:</>            {$from}  →  {$to}  ({$daysLeft} dias restantes)");
         $this->line("  <fg=cyan>Key Usage:</>          {$keyUsage}");
         $this->line("  <fg=cyan>Ext Key Usage:</>      {$extKeyUsage}");
-        $this->line("  <fg=cyan>Huella SHA-256:</>     " . openssl_x509_fingerprint($certPem, 'sha256'));
+        $this->line('  <fg=cyan>Huella SHA-256:</>     '.openssl_x509_fingerprint($certPem, 'sha256'));
         $this->newLine();
 
         // Veredictos.
@@ -77,14 +78,17 @@ class CertInfo extends Command
         if ($p12Path = $this->option('p12')) {
             if (! is_file($p12Path)) {
                 $this->error("No existe el .p12: {$p12Path}");
+
                 return null;
             }
             if (! openssl_pkcs12_read(file_get_contents($p12Path), $certs, (string) $this->option('pass'))) {
-                $this->error('No se pudo abrir el .p12 (¿contrasena incorrecta?): ' . openssl_error_string());
+                $this->error('No se pudo abrir el .p12 (¿contrasena incorrecta?): '.openssl_error_string());
+
                 return null;
             }
             $extra = count($certs['extracerts'] ?? []);
-            $this->line("  <fg=gray>.p12 leido. Certificados en la cadena: " . (1 + $extra) . "</>");
+            $this->line('  <fg=gray>.p12 leido. Certificados en la cadena: '.(1 + $extra).'</>');
+
             return $certs['cert'];
         }
 
@@ -92,6 +96,7 @@ class CertInfo extends Command
         if (! is_file($certPath)) {
             $this->error("No existe el certificado: {$certPath}");
             $this->line('Genera uno con: php artisan docsigner:make-cert');
+
             return null;
         }
 

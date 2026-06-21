@@ -22,8 +22,8 @@ class PdfConversionService
      * Devuelve la ruta absoluta del PDF generado.
      *
      * @param  string  $sourceAbsPath  Ruta absoluta del archivo origen.
-     * @param  string  $format         Extension en minusculas (pdf, docx, jpg...).
-     * @param  string  $outputDir      Directorio absoluto donde dejar el PDF.
+     * @param  string  $format  Extension en minusculas (pdf, docx, jpg...).
+     * @param  string  $outputDir  Directorio absoluto donde dejar el PDF.
      */
     public function normalizeToPdf(string $sourceAbsPath, string $format, string $outputDir): string
     {
@@ -35,7 +35,7 @@ class PdfConversionService
             throw new RuntimeException("No se pudo crear el directorio de salida: {$outputDir}");
         }
 
-        $target = rtrim($outputDir, '/\\') . DIRECTORY_SEPARATOR . 'normalized.pdf';
+        $target = rtrim($outputDir, '/\\').DIRECTORY_SEPARATOR.'normalized.pdf';
 
         // Caso simple: ya es PDF -> copiar.
         if ($format === 'pdf') {
@@ -59,15 +59,15 @@ class PdfConversionService
 
         // Perfil de usuario aislado: evita el bloqueo "LibreOffice ya esta en
         // ejecucion" y permite conversiones concurrentes.
-        $profileDir = rtrim($outputDir, '/\\') . DIRECTORY_SEPARATOR . '.lo_profile';
-        $profileUri = 'file:///' . str_replace('\\', '/', ltrim($profileDir, '/'));
+        $profileDir = rtrim($outputDir, '/\\').DIRECTORY_SEPARATOR.'.lo_profile';
+        $profileUri = 'file:///'.str_replace('\\', '/', ltrim($profileDir, '/'));
 
         $process = new Process([
             $binary,
             '--headless',
             '--norestore',
             '--nologo',
-            '-env:UserInstallation=' . $profileUri,
+            '-env:UserInstallation='.$profileUri,
             '--convert-to', 'pdf',
             '--outdir', $outputDir,
             $sourceAbsPath,
@@ -78,14 +78,14 @@ class PdfConversionService
             $process->mustRun();
         } catch (ProcessFailedException $e) {
             throw new RuntimeException(
-                'LibreOffice fallo al convertir: ' . trim($process->getErrorOutput() ?: $process->getOutput()),
+                'LibreOffice fallo al convertir: '.trim($process->getErrorOutput() ?: $process->getOutput()),
                 previous: $e,
             );
         }
 
         // LibreOffice nombra la salida como <basename>.pdf en el outdir.
-        $producedName = pathinfo($sourceAbsPath, PATHINFO_FILENAME) . '.pdf';
-        $produced = rtrim($outputDir, '/\\') . DIRECTORY_SEPARATOR . $producedName;
+        $producedName = pathinfo($sourceAbsPath, PATHINFO_FILENAME).'.pdf';
+        $produced = rtrim($outputDir, '/\\').DIRECTORY_SEPARATOR.$producedName;
 
         if (! is_file($produced)) {
             throw new RuntimeException('LibreOffice no genero el PDF esperado.');

@@ -31,8 +31,8 @@ class ProRequestController extends Controller
 
         try {
             $body = "Nueva solicitud de cuenta Pro:\n{$data['email']}"
-                . (! empty($data['name']) ? " ({$data['name']})" : '')
-                . (! empty($data['message']) ? "\n\n{$data['message']}" : '');
+                .(! empty($data['name']) ? " ({$data['name']})" : '')
+                .(! empty($data['message']) ? "\n\n{$data['message']}" : '');
             Mail::raw($body, fn ($m) => $m->to('info@leukasoft.com')->subject('FirmaDoc · solicitud de cuenta Pro'));
         } catch (Throwable $e) {
             report($e);

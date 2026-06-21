@@ -50,6 +50,7 @@ class SignatureFlowTest extends TestCase
         $code = null;
         Mail::assertSent(SignatureOtpMail::class, function ($mail) use (&$code) {
             $code = $mail->code;
+
             return true;
         });
 

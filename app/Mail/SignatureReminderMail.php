@@ -8,7 +8,7 @@ use Illuminate\Mail\Mailables\Content;
 use Illuminate\Mail\Mailables\Envelope;
 use Illuminate\Queue\SerializesModels;
 
-class SignatureInviteMail extends Mailable
+class SignatureReminderMail extends Mailable
 {
     use Queueable, SerializesModels;
 
@@ -16,21 +16,20 @@ class SignatureInviteMail extends Mailable
         public string $signerName,
         public string $documentName,
         public string $signUrl,
-        public ?\DateTimeInterface $expiresAt = null,
-        public ?int $position = null,
+        public string $expiresIn,
     ) {}
 
     public function envelope(): Envelope
     {
         return new Envelope(
-            subject: "Te han solicitado firmar: {$this->documentName}",
+            subject: "Recordatorio: pendiente firmar \"{$this->documentName}\"",
         );
     }
 
     public function content(): Content
     {
         return new Content(
-            text: 'emails.signature-invite',
+            text: 'emails.signature-reminder',
         );
     }
 }

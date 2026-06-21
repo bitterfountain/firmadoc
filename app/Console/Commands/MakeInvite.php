@@ -26,7 +26,7 @@ class MakeInvite extends Command
         $this->info('Enlace de invitación creado:');
         $this->line($invite->url());
         $this->line("Concede: {$invite->grant_days} días de Pro · Caduca el enlace: "
-            . ($invite->expires_at?->format('d/m/Y') ?? 'nunca'));
+            .($invite->expires_at?->format('d/m/Y') ?? 'nunca'));
 
         return self::SUCCESS;
     }

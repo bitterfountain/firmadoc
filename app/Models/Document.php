@@ -31,6 +31,16 @@ class Document extends Model
         'signed_path',
         'status',
         'error',
+        'signing_mode',
+        'witness_name',
+        'witness_email',
+        'witness_token',
+        'witness_confirmed_at',
+        'webhook_url',
+    ];
+
+    protected $casts = [
+        'witness_confirmed_at' => 'datetime',
     ];
 
     /** Formatos de imagen que convertimos a PDF. */
@@ -42,5 +52,20 @@ class Document extends Model
     public function isReadyToSign(): bool
     {
         return $this->status === 'ready' && $this->pdf_path !== null;
+    }
+
+    public function isSequential(): bool
+    {
+        return $this->signing_mode !== 'parallel';
+    }
+
+    public function allSigned(): bool
+    {
+        return ! $this->invitations()->where('status', '!=', 'signed')->exists();
+    }
+
+    public function pendingInvitations()
+    {
+        return $this->invitations()->where('status', 'pending');
     }
 }

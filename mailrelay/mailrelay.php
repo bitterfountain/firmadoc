@@ -47,20 +47,20 @@ $CONFIG = [
 ];
 
 // Carga de PHPMailer (composer o copia manual de src/).
-$autoload = __DIR__ . '/vendor/autoload.php';
+$autoload = __DIR__.'/vendor/autoload.php';
 if (is_file($autoload)) {
     require $autoload;
 } else {
     foreach (['Exception', 'PHPMailer', 'SMTP'] as $c) {
-        $f = __DIR__ . "/src/{$c}.php";
+        $f = __DIR__."/src/{$c}.php";
         if (is_file($f)) {
             require $f;
         }
     }
 }
 
-use PHPMailer\PHPMailer\PHPMailer;
 use PHPMailer\PHPMailer\Exception as PHPMailerException;
+use PHPMailer\PHPMailer\PHPMailer;
 
 header('Content-Type: application/json');
 
@@ -186,7 +186,7 @@ try {
 
     echo json_encode(['ok' => true, 'id' => bin2hex(random_bytes(8))]);
 } catch (PHPMailerException $e) {
-    fail(502, 'SMTP error: ' . $mail->ErrorInfo);
-} catch (\Throwable $e) {
-    fail(500, 'Error: ' . $e->getMessage());
+    fail(502, 'SMTP error: '.$mail->ErrorInfo);
+} catch (Throwable $e) {
+    fail(500, 'Error: '.$e->getMessage());
 }
