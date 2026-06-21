@@ -71,6 +71,7 @@ class InvitationController extends Controller
         $invitation = $document->invitations()->create([
             'name' => $data['name'],
             'email' => $data['email'],
+            'phone' => $data['phone'] ?? null,
             'token' => Str::random(64),
             'position' => $position,
             'status' => 'pending',
@@ -239,6 +240,7 @@ class InvitationController extends Controller
             'otpVerifyUrl' => route('sign.otpVerify', $token),
             'signerName' => $invitation->name,
             'signerEmail' => $invitation->email,
+            'signerPhone' => $invitation->phone,
         ]);
     }
 

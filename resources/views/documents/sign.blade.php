@@ -133,11 +133,32 @@
                 </div>
 
                 <div data-role="step-data" class="mt-4 space-y-3">
-                    <p data-role="data-hint" class="text-xs text-muted">{{ __('Te enviaremos un código por email para confirmar la firma.') }}</p>
+                    <p data-role="data-hint" class="text-xs text-muted">{{ __('Te enviaremos un código para confirmar la firma.') }}</p>
                     <input data-role="signer-name" type="text" placeholder="{{ __('Nombre completo') }}" autocomplete="name"
                            value="{{ $signerName }}" @if($signerName) readonly @endif class="input read-only:bg-paper/60">
                     <input data-role="signer-email" type="email" placeholder="{{ __('tu@email.com') }}" autocomplete="email"
                            value="{{ $signerEmail }}" @if($signerEmail) readonly @endif class="input read-only:bg-paper/60">
+
+                    <div data-role="method-selector" class="flex gap-3 text-sm">
+                        <label class="flex items-center gap-1.5 cursor-pointer">
+                            <input type="radio" name="verify_method" value="email" checked data-role="method-email" class="accent-current">
+                            <span class="text-ink">{{ __('Email') }}</span>
+                        </label>
+                        <label class="flex items-center gap-1.5 cursor-pointer">
+                            <input type="radio" name="verify_method" value="sms" data-role="method-sms" class="accent-current">
+                            <span class="text-ink">{{ __('SMS') }}</span>
+                        </label>
+                        <label class="flex items-center gap-1.5 cursor-pointer">
+                            <input type="radio" name="verify_method" value="both" data-role="method-both" class="accent-current">
+                            <span class="text-ink">{{ __('Ambos') }}</span>
+                        </label>
+                    </div>
+
+                    <div data-role="phone-row" class="hidden">
+                        <input data-role="signer-phone" type="tel" placeholder="{{ __('+34 600 000 000') }}" autocomplete="tel"
+                               value="{{ $signerPhone }}" class="input">
+                    </div>
+
                     <button data-action="send-code" type="button" class="btn btn-primary w-full">{{ __('Enviar código') }}</button>
 
                     <div data-role="quick-direct" class="hidden">
@@ -152,7 +173,7 @@
 
                 <div data-role="step-otp" class="mt-4 hidden space-y-3">
                     <p class="text-xs text-muted">
-                        {!! __('Introduce el código de 6 dígitos enviado a <span data-role="sent-email" class="font-medium text-ink"></span>.') !!}
+                        {!! __('Introduce el código de 6 dígitos enviado a <span data-role="sent-to" class="font-medium text-ink"></span>.') !!}
                     </p>
                     <input data-role="otp-input" inputmode="numeric" maxlength="6" placeholder="------"
                            class="input text-center text-lg tracking-[0.5em]">
