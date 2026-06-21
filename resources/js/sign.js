@@ -556,7 +556,14 @@ async function init(root) {
             [t('cReference', 'Referencia'), audit.reference],
             [t('cSigner', 'Firmante'), audit.signer_name],
         ];
-        if (audit.signer_email) {
+
+        const isSms = audit.verification_method === 'sms';
+
+        if (isSms && audit.phone) {
+            rows.push([t('cPhoneVer', 'Telefono verificado (SMS)'), audit.phone]);
+        } else if (!audit.level0 && audit.signer_email) {
+            rows.push([t('cEmailVer', 'Email verificado'), audit.signer_email]);
+        } else if (audit.signer_email) {
             rows.push([audit.level0 ? t('cEmailDeliv', 'Email (entrega)') : t('cEmailVer', 'Email verificado'), audit.signer_email]);
         }
         rows.push([audit.level0 ? t('cDateSign', 'Fecha y hora de firma') : t('cDateVer', 'Fecha y hora (verificacion)'), audit.verified_at_human]);
@@ -574,9 +581,14 @@ async function init(root) {
             y -= 8;
         }
 
-        const footer = audit.level0
-            ? t('cFooter0', 'Documento firmado con FirmaDoc. Firma electronica simple (firma visual + sello de integridad SHA-256), sin verificacion de identidad.')
-            : t('cFooter1', 'Documento firmado con FirmaDoc. Firma electronica simple con verificacion de identidad por email.');
+        let footer;
+        if (audit.level0) {
+            footer = t('cFooter0', 'Documento firmado con FirmaDoc. Firma electronica simple (firma visual + sello de integridad SHA-256), sin verificacion de identidad.');
+        } else if (isSms) {
+            footer = t('cFooterSms', 'Documento firmado con FirmaDoc. Firma electronica simple con verificacion de identidad por SMS.');
+        } else {
+            footer = t('cFooter1', 'Documento firmado con FirmaDoc. Firma electronica simple con verificacion de identidad por email.');
+        }
         page.drawText(footer, { x: 50, y: 56, size: 8, font, color: muted, maxWidth: 495, lineHeight: 11 });
     }
 

@@ -117,6 +117,7 @@ class SignatureController extends Controller
             'verified_at' => now(),
             'status' => 'verified',
             'original_sha256' => $originalHash,
+            'phone_verified_at' => $event->verification_method === 'sms' ? now() : null,
         ]);
 
         return response()->json([
@@ -128,6 +129,8 @@ class SignatureController extends Controller
                 'verified_at_human' => $event->verified_at->format('d/m/Y H:i:s').' UTC',
                 'ip_address' => $event->ip_address,
                 'document_hash' => $originalHash,
+                'verification_method' => $event->verification_method,
+                'phone' => $event->phone,
             ],
         ]);
     }
