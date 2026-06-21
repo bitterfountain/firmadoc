@@ -2,7 +2,9 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Document;
 use App\Models\PageVisit;
+use App\Models\SignatureEvent;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
 
@@ -46,6 +48,16 @@ class VisitAnalyticsController extends Controller
             $byHour[(int) $t->visited_at->format('G')]++;
         }
 
-        return view('admin.visits', compact('days', 'total', 'unique', 'byType', 'topCountries', 'byDay', 'byHour'));
+        // Estadisticas de firma
+        $signedDocs = Document::where('status', 'signed')->count();
+        $anonSignatures = SignatureEvent::whereNotNull('invitation_id')
+            ->where('status', 'completed')->count();
+        $registeredSignatures = SignatureEvent::whereNull('invitation_id')
+            ->where('status', 'completed')->count();
+
+        return view('admin.visits', compact(
+            'days', 'total', 'unique', 'byType', 'topCountries', 'byDay', 'byHour',
+            'signedDocs', 'anonSignatures', 'registeredSignatures'
+        ));
     }
 }

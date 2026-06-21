@@ -44,6 +44,23 @@
         </div>
     </div>
 
+    <div class="grid gap-4 sm:grid-cols-3 mt-4">
+        <div class="card p-5">
+            <p class="eyebrow">{{ __('Docs firmados') }}</p>
+            <p class="mt-1 text-3xl font-semibold text-accent" style="font-family:var(--font-display)">{{ number_format($signedDocs, 0, ',', '.') }}</p>
+        </div>
+        <div class="card p-5">
+            <p class="eyebrow">{{ __('Firmas libres') }}</p>
+            <p class="mt-1 text-3xl font-semibold text-ink" style="font-family:var(--font-display)">{{ number_format($anonSignatures, 0, ',', '.') }}</p>
+            <p class="mt-1 text-xs text-faint">{{ __('Usuarios sin registro') }}</p>
+        </div>
+        <div class="card p-5">
+            <p class="eyebrow">{{ __('Firmas registradas') }}</p>
+            <p class="mt-1 text-3xl font-semibold text-ink" style="font-family:var(--font-display)">{{ number_format($registeredSignatures, 0, ',', '.') }}</p>
+            <p class="mt-1 text-xs text-faint">{{ __('Usuarios con cuenta') }}</p>
+        </div>
+    </div>
+
     {{-- Visitas por día --}}
     <div class="card mt-4 p-5">
         <h2 class="text-sm font-semibold text-ink">{{ __('Visitas por día') }}</h2>
