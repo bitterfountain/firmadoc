@@ -318,7 +318,6 @@ async function init(root) {
     const methodSms = modal.querySelector('[data-role="method-sms"]');
     const methodBoth = modal.querySelector('[data-role="method-both"]');
     const otpInput = modal.querySelector('[data-role="otp-input"]');
-    const sentEmail = modal.querySelector('[data-role="sent-email"]');
     const sentTo = modal.querySelector('[data-role="sent-to"]');
     const modalStatus = modal.querySelector('[data-role="modal-status"]');
     const sendBtn = modal.querySelector('[data-action="send-code"]');
@@ -392,12 +391,16 @@ async function init(root) {
         sendBtn.addEventListener('click', async (e) => {
             const signer_name = nameInput.value.trim();
             const signer_email = emailInput.value.trim();
-            if (!signer_name || !signer_email) return setModalStatus(t('fillNameEmail', 'Rellena nombre y email.'), true);
 
-            const method = methodSms?.checked ? 'sms' : (methodBoth?.checked ? 'email' : 'email');
+            if (!signer_name) return setModalStatus(t('fillName', 'Rellena tu nombre.'), true);
+
+            const method = methodSms?.checked ? 'sms' : (methodBoth?.checked ? 'both' : 'email');
             const phone = phoneInput?.value.trim() ?? '';
             const smsAlso = methodBoth?.checked;
 
+            if (method === 'email' && !signer_email) {
+                return setModalStatus(t('fillEmail', 'Rellena tu email.'), true);
+            }
             if ((method === 'sms' || smsAlso) && !phone) {
                 return setModalStatus(t('fillPhone', 'Introduce tu numero de telefono para recibir el SMS.'), true);
             }
@@ -405,14 +408,13 @@ async function init(root) {
             e.target.disabled = true;
             setModalStatus(t('sending', 'Enviando codigo...'));
             try {
-                const payload = { signer_name, signer_email, method, sms_also: smsAlso };
+                const payload = { signer_name, signer_email: signer_email || '', method, sms_also: smsAlso };
                 if (phone) payload.phone = phone;
 
                 const res = await postJson(otpUrl, payload);
                 const json = await res.json();
                 if (!res.ok) throw new Error(json.message || `Error ${res.status}`);
                 eventId = json.event_id;
-                sentEmail.textContent = signer_email;
                 if (sentTo) {
                     sentTo.textContent = method === 'sms' ? phone : signer_email;
                 }
@@ -420,7 +422,7 @@ async function init(root) {
                 stepOtp.classList.remove('hidden');
                 otpInput.value = '';
                 otpInput.focus();
-                const whereLabel = method === 'sms' ? t('smsSent', 'SMS enviado') : t('codeSent', 'Codigo enviado. Revisa tu email.');
+                const whereLabel = method === 'sms' ? t('smsSent', 'SMS enviado. Revisa tu telefono.') : t('codeSent', 'Codigo enviado. Revisa tu email.');
                 setModalStatus(whereLabel);
             } catch (err) {
                 setModalStatus(err.message, true);

@@ -139,6 +139,11 @@
                     <input data-role="signer-email" type="email" placeholder="{{ __('tu@email.com') }}" autocomplete="email"
                            value="{{ $signerEmail }}" @if($signerEmail) readonly @endif class="input read-only:bg-paper/60">
 
+                    <div data-role="phone-row" class="hidden">
+                        <input data-role="signer-phone" type="tel" placeholder="{{ __('+34 600 000 000') }}" autocomplete="tel"
+                               value="{{ $signerPhone ?? '' }}" class="input">
+                    </div>
+
                     <div data-role="method-selector" class="flex gap-3 text-sm">
                         <label class="flex items-center gap-1.5 cursor-pointer">
                             <input type="radio" name="verify_method" value="email" checked data-role="method-email" class="accent-current">
@@ -152,11 +157,6 @@
                             <input type="radio" name="verify_method" value="both" data-role="method-both" class="accent-current">
                             <span class="text-ink">{{ __('Ambos') }}</span>
                         </label>
-                    </div>
-
-                    <div data-role="phone-row" class="hidden">
-                        <input data-role="signer-phone" type="tel" placeholder="{{ __('+34 600 000 000') }}" autocomplete="tel"
-                               value="{{ $signerPhone ?? '' }}" class="input">
                     </div>
 
                     <button data-action="send-code" type="button" class="btn btn-primary w-full">{{ __('Enviar código') }}</button>
