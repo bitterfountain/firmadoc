@@ -35,4 +35,9 @@ return [
         ],
     ],
 
+    'httpsms' => [
+        'endpoint' => env('HTTPSMS_ENDPOINT', 'https://httpsms.leukasoft.com/api'),
+        'api_key' => env('HTTPSMS_API_KEY'),
+    ],
+
 ];

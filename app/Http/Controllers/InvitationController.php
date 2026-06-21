@@ -599,17 +599,25 @@ class InvitationController extends Controller
         }
     }
 
-    /** Envia OTP por SMS (requiere integracion externa; placeholder). */
+    /** Envia OTP por SMS via httpSMS. */
     private function sendSmsOtp(?string $phone, string $code): bool
     {
         if (! $phone) {
             return false;
         }
 
-        // Integrar con Twilio/Vonage/etc. cuando se configure
-        // $sid = config('services.twilio.sid');
-        // if (! $sid) return false;
+        $service = app(\App\Services\HttpSmsService::class);
 
-        return false;
+        if (! $service->isConfigured()) {
+            return false;
+        }
+
+        $result = $service->send(
+            to: $phone,
+            content: "Tu codigo de verificacion Docsigner: {$code}",
+            from: 'Docsigner',
+        );
+
+        return $result['success'] ?? false;
     }
 }

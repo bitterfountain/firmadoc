@@ -106,3 +106,10 @@ Route::controller(InvitationController::class)->prefix('sign/{token}')->name('si
 
 // Testigo: confirmacion publica
 Route::get('/witness/{token}', [InvitationController::class, 'confirmWitness'])->name('sign.witness');
+
+// SMS via httpSMS
+Route::middleware('auth')->prefix('sms')->group(function () {
+    Route::get('/', [App\Http\Controllers\SmsController::class, 'index'])->name('sms.index');
+    Route::post('/send', [App\Http\Controllers\SmsController::class, 'send'])->name('sms.send');
+    Route::get('/{id}', [App\Http\Controllers\SmsController::class, 'status'])->name('sms.status');
+});
