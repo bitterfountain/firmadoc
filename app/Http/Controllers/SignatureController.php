@@ -6,6 +6,7 @@ use App\Concerns\HandlesDocumentFiles;
 use App\Mail\SignatureOtpMail;
 use App\Models\Document;
 use App\Models\SignatureEvent;
+use App\Services\HttpSmsService;
 use App\Services\PadesSigningService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -29,25 +30,42 @@ class SignatureController extends Controller
 
         $data = $request->validate([
             'signer_name' => 'required|string|max:120',
-            'signer_email' => 'required|email|max:190',
+            'signer_email' => 'nullable|email|max:190',
+            'method' => 'nullable|in:email,sms,both',
+            'phone' => 'nullable|string|max:30',
+            'sms_also' => 'nullable|boolean',
         ]);
 
+        $method = $data['method'] ?? 'email';
         $code = (string) random_int(100000, 999999);
 
         $event = SignatureEvent::create([
             'document_id' => $document->id,
             'signer_name' => $data['signer_name'],
-            'signer_email' => $data['signer_email'],
+            'signer_email' => $data['signer_email'] ?? '',
             'ip_address' => $request->ip(),
             'user_agent' => substr((string) $request->userAgent(), 0, 512),
             'otp_hash' => Hash::make($code),
             'otp_expires_at' => now()->addMinutes(self::OTP_MINUTES),
+            'phone' => $data['phone'] ?? null,
+            'verification_method' => $method,
             'status' => 'pending',
         ]);
 
-        Mail::to($data['signer_email'])->send(
-            new SignatureOtpMail($code, $document->original_name, self::OTP_MINUTES)
-        );
+        if ($method !== 'sms') {
+            Mail::to($data['signer_email'])->send(
+                new SignatureOtpMail($code, $document->original_name, self::OTP_MINUTES)
+            );
+        }
+
+        if ($method === 'sms' || !empty($data['sms_also'])) {
+            $sms = app(HttpSmsService::class);
+            $sms->send(
+                to: $data['phone'] ?? '',
+                content: "Tu codigo de verificacion Docsigner: {$code}",
+                from: 'Docsigner',
+            );
+        }
 
         return response()->json(['event_id' => $event->id]);
     }
