@@ -37,10 +37,10 @@
                     </span>
                     <span class="mt-3 text-sm font-semibold text-ink">{{ __('Pulsa para elegir un archivo') }}</span>
                     <span class="mt-1 text-xs text-faint">PDF · DOCX · DOC · ODT · JPG · PNG</span>
-                    <span data-role="quick-file-name" class="mt-2 rounded-full bg-ink px-4 py-1.5 text-xs font-semibold text-paper">{{ __('Seleccionar archivo') }}</span>
+                    <span id="quick-file-name" class="mt-2 rounded-full bg-ink px-4 py-1.5 text-xs font-semibold text-paper">{{ __('Seleccionar archivo') }}</span>
                     <input id="quick-file" type="file" name="file" required class="sr-only"
                            accept=".pdf,.docx,.doc,.odt,.jpg,.jpeg,.png"
-                           onchange="this.closest('label').querySelector('[data-role=quick-file-name]').textContent = this.files[0]?.name || '{{ __('Seleccionar archivo') }}'">
+                           onchange="document.getElementById('quick-file-name').textContent = this.files[0]?.name || '{{ __('Seleccionar archivo') }}'">
                 </label>
 
                 @error('file')
@@ -68,10 +68,10 @@
                     </span>
                     <span class="mt-3 text-sm font-semibold text-ink">{{ __('Pulsa para elegir un archivo') }}</span>
                     <span class="mt-1 text-xs text-faint">PDF · DOCX · DOC · ODT · JPG · PNG</span>
-                    <span data-role="quick-multi-file-name" class="mt-2 rounded-full bg-ink px-4 py-1.5 text-xs font-semibold text-paper">{{ __('Seleccionar archivo') }}</span>
+                    <span id="quick-multi-file-name" class="mt-2 rounded-full bg-ink px-4 py-1.5 text-xs font-semibold text-paper">{{ __('Seleccionar archivo') }}</span>
                     <input id="quick-multi-file" type="file" name="file" required class="sr-only"
                            accept=".pdf,.docx,.doc,.odt,.jpg,.jpeg,.png"
-                           onchange="this.closest('label').querySelector('[data-role=quick-multi-file-name]').textContent = this.files[0]?.name || '{{ __('Seleccionar archivo') }}'">
+                           onchange="document.getElementById('quick-multi-file-name').textContent = this.files[0]?.name || '{{ __('Seleccionar archivo') }}'">
                 </label>
 
                 <div class="rounded-xl border border-line bg-paper/30 p-4">
