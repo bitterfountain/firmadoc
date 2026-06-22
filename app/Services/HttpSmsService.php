@@ -8,6 +8,7 @@ use Illuminate\Support\Facades\Log;
 class HttpSmsService
 {
     private string $endpoint;
+
     private string $apiKey;
 
     public function __construct()
@@ -40,36 +41,40 @@ class HttpSmsService
 
             $response = Http::timeout(10)
                 ->withToken($this->apiKey)
-                ->post($this->endpoint . '/v1/messages/send', $payload);
+                ->post($this->endpoint.'/v1/messages/send', $payload);
 
             if ($response->successful()) {
                 $data = $response->json();
-                Log::info("httpSMS: mensaje enviado", ['id' => $data['id'] ?? null, 'to' => $to]);
+                Log::info('httpSMS: mensaje enviado', ['id' => $data['id'] ?? null, 'to' => $to]);
+
                 return ['success' => true, 'id' => $data['id'] ?? null, 'status' => $data['status'] ?? 'unknown'];
             }
 
             if ($response->status() === 429) {
-                Log::warning("httpSMS: rate limit alcanzado", ['to' => $to]);
+                Log::warning('httpSMS: rate limit alcanzado', ['to' => $to]);
+
                 return ['success' => false, 'error' => 'Rate limit alcanzado, reintente en unos segundos'];
             }
 
             if ($response->status() === 409) {
-                Log::warning("httpSMS: sin telefono online", ['to' => $to]);
+                Log::warning('httpSMS: sin telefono online', ['to' => $to]);
+
                 return ['success' => false, 'error' => 'No hay ningun telefono online para enviar SMS'];
             }
 
-            Log::error("httpSMS: error al enviar", [
+            Log::error('httpSMS: error al enviar', [
                 'status' => $response->status(),
                 'body' => $response->body(),
                 'to' => $to,
             ]);
 
-            return ['success' => false, 'error' => 'Error del servidor SMS: HTTP ' . $response->status()];
+            return ['success' => false, 'error' => 'Error del servidor SMS: HTTP '.$response->status()];
         } catch (\Throwable $e) {
-            Log::error("httpSMS: excepcion", [
+            Log::error('httpSMS: excepcion', [
                 'message' => $e->getMessage(),
                 'to' => $to,
             ]);
+
             return ['success' => false, 'error' => 'Error de conexion con el servicio SMS'];
         }
     }
@@ -83,7 +88,7 @@ class HttpSmsService
         try {
             $response = Http::timeout(5)
                 ->withToken($this->apiKey)
-                ->get($this->endpoint . '/v1/messages/' . $messageId);
+                ->get($this->endpoint.'/v1/messages/'.$messageId);
 
             if ($response->successful()) {
                 return ['success' => true, 'data' => $response->json()];
@@ -109,7 +114,7 @@ class HttpSmsService
 
             $response = Http::timeout(5)
                 ->withToken($this->apiKey)
-                ->get($this->endpoint . '/v1/messages', $query);
+                ->get($this->endpoint.'/v1/messages', $query);
 
             if ($response->successful()) {
                 return ['success' => true, 'data' => $response->json()];

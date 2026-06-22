@@ -58,7 +58,7 @@ class SignatureController extends Controller
             );
         }
 
-        if ($method === 'sms' || !empty($data['sms_also'])) {
+        if ($method === 'sms' || ! empty($data['sms_also'])) {
             $sms = app(HttpSmsService::class);
             $sms->send(
                 to: $data['phone'] ?? '',

@@ -10,6 +10,7 @@ use App\Mail\WitnessNotificationMail;
 use App\Models\Document;
 use App\Models\SignatureEvent;
 use App\Models\SignatureInvitation;
+use App\Services\HttpSmsService;
 use App\Services\PadesSigningService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
@@ -71,7 +72,6 @@ class InvitationController extends Controller
         $invitation = $document->invitations()->create([
             'name' => $data['name'],
             'email' => $data['email'],
-            'phone' => $data['phone'] ?? null,
             'token' => Str::random(64),
             'position' => $position,
             'status' => 'pending',
@@ -240,7 +240,6 @@ class InvitationController extends Controller
             'otpVerifyUrl' => route('sign.otpVerify', $token),
             'signerName' => $invitation->name,
             'signerEmail' => $invitation->email,
-            'signerPhone' => $invitation->phone,
         ]);
     }
 
@@ -303,14 +302,21 @@ class InvitationController extends Controller
             'status' => 'pending',
         ]);
 
-        Mail::to($invitation->email)->send(
-            new SignatureOtpMail($code, $invitation->document->original_name, self::OTP_MINUTES)
-        );
+        if ($verificationMethod !== 'sms') {
+            Mail::to($invitation->email)->send(
+                new SignatureOtpMail($code, $invitation->document->original_name, self::OTP_MINUTES)
+            );
+        }
 
-        // SMS: si se solicito, enviar por SMS ademas (o en lugar de email)
         $smsSent = false;
         if ($verificationMethod === 'sms' || $request->boolean('sms_also')) {
-            $smsSent = $this->sendSmsOtp($request->input('phone'), $code);
+            $sms = app(HttpSmsService::class);
+            $result = $sms->send(
+                to: $request->input('phone', ''),
+                content: "Tu codigo de verificacion Docsigner: {$code}",
+                from: 'Docsigner',
+            );
+            $smsSent = $result['success'] ?? false;
         }
 
         return response()->json([
@@ -381,6 +387,7 @@ class InvitationController extends Controller
                 'ip_address' => $event->ip_address,
                 'document_hash' => $originalHash,
                 'verification_method' => $event->verification_method,
+                'phone' => $event->phone,
                 'id_document_attached' => $idDocPath !== null,
             ],
         ]);
@@ -599,27 +606,5 @@ class InvitationController extends Controller
         } catch (Throwable $e) {
             report($e);
         }
-    }
-
-    /** Envia OTP por SMS via httpSMS. */
-    private function sendSmsOtp(?string $phone, string $code): bool
-    {
-        if (! $phone) {
-            return false;
-        }
-
-        $service = app(\App\Services\HttpSmsService::class);
-
-        if (! $service->isConfigured()) {
-            return false;
-        }
-
-        $result = $service->send(
-            to: $phone,
-            content: "Tu codigo de verificacion Docsigner: {$code}",
-            from: 'Docsigner',
-        );
-
-        return $result['success'] ?? false;
     }
 }

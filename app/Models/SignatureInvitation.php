@@ -8,7 +8,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 class SignatureInvitation extends Model
 {
     protected $fillable = [
-        'document_id', 'name', 'email', 'phone', 'token', 'position',
+        'document_id', 'name', 'email', 'token', 'position',
         'status', 'signed_at', 'expires_at', 'declined_at', 'last_reminded_at',
     ];
 

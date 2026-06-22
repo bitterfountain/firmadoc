@@ -472,6 +472,8 @@ async function init(root) {
         emailInput.removeAttribute('readonly');
         sendBtn.textContent = t('signEmailBtn', 'Firmar y enviar por email');
         modal.querySelector('[data-role="quick-direct"]')?.classList.remove('hidden');
+        modal.querySelector('[data-role="method-selector"]')?.classList.add('hidden');
+        modal.querySelector('[data-role="phone-row"]')?.classList.add('hidden');
 
         // Firma cliente (Nivel 0). withEmail decide si se entrega por email.
         const doQuickSign = async (btn, withEmail) => {

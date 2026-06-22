@@ -11,6 +11,7 @@ use App\Http\Controllers\ProRequestController;
 use App\Http\Controllers\QuickSignController;
 use App\Http\Controllers\SignatureController;
 use App\Http\Controllers\SigningCertController;
+use App\Http\Controllers\SmsController;
 use App\Http\Controllers\VisitAnalyticsController;
 use App\Http\Middleware\EnsureProActive;
 use Illuminate\Support\Facades\Route;
@@ -109,7 +110,7 @@ Route::get('/witness/{token}', [InvitationController::class, 'confirmWitness'])-
 
 // SMS via httpSMS
 Route::middleware('auth')->prefix('sms')->group(function () {
-    Route::get('/', [App\Http\Controllers\SmsController::class, 'index'])->name('sms.index');
-    Route::post('/send', [App\Http\Controllers\SmsController::class, 'send'])->name('sms.send');
-    Route::get('/{id}', [App\Http\Controllers\SmsController::class, 'status'])->name('sms.status');
+    Route::get('/', [SmsController::class, 'index'])->name('sms.index');
+    Route::post('/send', [SmsController::class, 'send'])->name('sms.send');
+    Route::get('/{id}', [SmsController::class, 'status'])->name('sms.status');
 });
