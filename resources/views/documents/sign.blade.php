@@ -141,7 +141,7 @@
 
                     <div data-role="phone-row" class="hidden">
                         <input data-role="signer-phone" type="tel" placeholder="{{ __('+34 600 000 000') }}" autocomplete="tel"
-                               value="{{ $signerPhone ?? '' }}" class="input">
+                               class="input">
                     </div>
 
                     <div data-role="method-selector" class="flex gap-3 text-sm">
