@@ -31,14 +31,16 @@
             <form method="POST" action="{{ route('quick.upload') }}" enctype="multipart/form-data" class="mt-6 space-y-4">
                 @csrf
                 <input type="hidden" name="mode" value="simple">
-                <label class="group flex cursor-pointer flex-col items-center justify-center rounded-2xl border border-dashed border-line-strong bg-paper/40 px-4 py-10 text-center transition-colors hover:border-accent hover:bg-accent-soft/40">
+                <label for="quick-file" class="group flex cursor-pointer flex-col items-center justify-center rounded-2xl border border-dashed border-line-strong bg-paper/40 px-4 py-10 text-center transition-colors hover:border-accent hover:bg-accent-soft/40">
                     <span class="grid size-12 place-items-center rounded-xl bg-accent-soft text-accent transition-transform group-hover:-translate-y-0.5">
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="size-6"><path d="M12 16V4M7 9l5-5 5 5"/><path d="M5 16v2a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-2"/></svg>
                     </span>
                     <span class="mt-3 text-sm font-semibold text-ink">{{ __('Pulsa para elegir un archivo') }}</span>
                     <span class="mt-1 text-xs text-faint">PDF · DOCX · DOC · ODT · JPG · PNG</span>
-                    <input type="file" name="file" required class="mt-3 text-xs text-muted file:mr-3 file:rounded-full file:border-0 file:bg-ink file:px-3 file:py-1.5 file:text-xs file:font-semibold file:text-paper"
-                           accept=".pdf,.docx,.doc,.odt,.jpg,.jpeg,.png">
+                    <span data-role="quick-file-name" class="mt-2 rounded-full bg-ink px-4 py-1.5 text-xs font-semibold text-paper">{{ __('Seleccionar archivo') }}</span>
+                    <input id="quick-file" type="file" name="file" required class="sr-only"
+                           accept=".pdf,.docx,.doc,.odt,.jpg,.jpeg,.png"
+                           onchange="this.closest('label').querySelector('[data-role=quick-file-name]').textContent = this.files[0]?.name || '{{ __('Seleccionar archivo') }}'">
                 </label>
 
                 @error('file')
@@ -60,14 +62,16 @@
                 @csrf
                 <input type="hidden" name="mode" value="multi">
 
-                <label class="group flex cursor-pointer flex-col items-center justify-center rounded-2xl border border-dashed border-line-strong bg-paper/40 px-4 py-8 text-center transition-colors hover:border-accent hover:bg-accent-soft/40">
+                <label for="quick-multi-file" class="group flex cursor-pointer flex-col items-center justify-center rounded-2xl border border-dashed border-line-strong bg-paper/40 px-4 py-8 text-center transition-colors hover:border-accent hover:bg-accent-soft/40">
                     <span class="grid size-12 place-items-center rounded-xl bg-accent-soft text-accent transition-transform group-hover:-translate-y-0.5">
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="size-6"><path d="M12 16V4M7 9l5-5 5 5"/><path d="M5 16v2a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-2"/></svg>
                     </span>
                     <span class="mt-3 text-sm font-semibold text-ink">{{ __('Pulsa para elegir un archivo') }}</span>
                     <span class="mt-1 text-xs text-faint">PDF · DOCX · DOC · ODT · JPG · PNG</span>
-                    <input type="file" name="file" id="multi-file" required class="mt-3 text-xs text-muted file:mr-3 file:rounded-full file:border-0 file:bg-ink file:px-3 file:py-1.5 file:text-xs file:font-semibold file:text-paper"
-                           accept=".pdf,.docx,.doc,.odt,.jpg,.jpeg,.png">
+                    <span data-role="quick-multi-file-name" class="mt-2 rounded-full bg-ink px-4 py-1.5 text-xs font-semibold text-paper">{{ __('Seleccionar archivo') }}</span>
+                    <input id="quick-multi-file" type="file" name="file" required class="sr-only"
+                           accept=".pdf,.docx,.doc,.odt,.jpg,.jpeg,.png"
+                           onchange="this.closest('label').querySelector('[data-role=quick-multi-file-name]').textContent = this.files[0]?.name || '{{ __('Seleccionar archivo') }}'">
                 </label>
 
                 <div class="rounded-xl border border-line bg-paper/30 p-4">
@@ -117,7 +121,7 @@
             const tabBtns = document.querySelectorAll('#quick-tabs .tab-btn');
             const tabSimple = document.getElementById('tab-simple');
             const tabMulti = document.getElementById('tab-multi');
-            const multiFile = document.getElementById('multi-file');
+            const multiFile = document.getElementById('quick-multi-file');
 
             tabBtns.forEach(btn => {
                 btn.addEventListener('click', () => {
