@@ -39,8 +39,7 @@
                     <span class="mt-1 text-xs text-faint">PDF · DOCX · DOC · ODT · JPG · PNG</span>
                     <span id="quick-file-name" class="mt-2 rounded-full bg-ink px-4 py-1.5 text-xs font-semibold text-paper">{{ __('Seleccionar archivo') }}</span>
                     <input id="quick-file" type="file" name="file" required class="sr-only"
-                           accept=".pdf,.docx,.doc,.odt,.jpg,.jpeg,.png"
-                           onchange="document.getElementById('quick-file-name').textContent = this.files[0]?.name || '{{ __('Seleccionar archivo') }}'">
+                           accept=".pdf,.docx,.doc,.odt,.jpg,.jpeg,.png">
                 </label>
 
                 @error('file')
@@ -70,8 +69,7 @@
                     <span class="mt-1 text-xs text-faint">PDF · DOCX · DOC · ODT · JPG · PNG</span>
                     <span id="quick-multi-file-name" class="mt-2 rounded-full bg-ink px-4 py-1.5 text-xs font-semibold text-paper">{{ __('Seleccionar archivo') }}</span>
                     <input id="quick-multi-file" type="file" name="file" required class="sr-only"
-                           accept=".pdf,.docx,.doc,.odt,.jpg,.jpeg,.png"
-                           onchange="document.getElementById('quick-multi-file-name').textContent = this.files[0]?.name || '{{ __('Seleccionar archivo') }}'">
+                           accept=".pdf,.docx,.doc,.odt,.jpg,.jpeg,.png">
                 </label>
 
                 <div class="rounded-xl border border-line bg-paper/30 p-4">
@@ -122,6 +120,25 @@
             const tabSimple = document.getElementById('tab-simple');
             const tabMulti = document.getElementById('tab-multi');
             const multiFile = document.getElementById('quick-multi-file');
+            const quickFile = document.getElementById('quick-file');
+
+            const updateFileName = (input, displayId, empty) => {
+                const display = document.getElementById(displayId);
+                if (display) {
+                    display.textContent = input.files[0] ? input.files[0].name : empty;
+                }
+            };
+
+            if (quickFile) {
+                quickFile.addEventListener('change', function() {
+                    updateFileName(this, 'quick-file-name', 'Seleccionar archivo');
+                });
+            }
+            if (multiFile) {
+                multiFile.addEventListener('change', function() {
+                    updateFileName(this, 'quick-multi-file-name', 'Seleccionar archivo');
+                });
+            }
 
             tabBtns.forEach(btn => {
                 btn.addEventListener('click', () => {
