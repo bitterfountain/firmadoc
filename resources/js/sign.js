@@ -324,18 +324,19 @@ async function init(root) {
     const applyHint = root.querySelector('[data-role="apply-hint"]');
     let eventId = null;
 
-    // Show/hide phone field based on method selection
-    const updatePhoneVisibility = () => {
-        if (phoneRow) {
-            const useSms = methodSms?.checked || methodBoth?.checked;
-            phoneRow.classList.toggle('hidden', !useSms);
-        }
+    // Show/hide phone and email fields based on method selection
+    const updateMethodVisibility = () => {
+        const useSms = methodSms?.checked || methodBoth?.checked;
+        const emailOnly = methodEmail?.checked;
+        if (phoneRow) phoneRow.classList.toggle('hidden', !useSms);
+        if (emailInput) emailInput.classList.toggle('hidden', useSms && !emailOnly);
+        if (emailInput) emailInput.required = emailOnly;
     };
 
-    methodEmail?.addEventListener('change', updatePhoneVisibility);
-    methodSms?.addEventListener('change', updatePhoneVisibility);
-    methodBoth?.addEventListener('change', updatePhoneVisibility);
-    updatePhoneVisibility();
+    methodEmail?.addEventListener('change', updateMethodVisibility);
+    methodSms?.addEventListener('change', updateMethodVisibility);
+    methodBoth?.addEventListener('change', updateMethodVisibility);
+    updateMethodVisibility();
 
     const setModalStatus = (msg, isError = false) => {
         modalStatus.textContent = msg;
@@ -347,7 +348,7 @@ async function init(root) {
         setModalStatus('');
         modal.classList.replace('hidden', 'flex');
         if (methodEmail) methodEmail.checked = true;
-        updatePhoneVisibility();
+        updateMethodVisibility();
         nameInput?.focus();
     };
     const closeModal = () => modal.classList.replace('flex', 'hidden');
@@ -402,7 +403,7 @@ async function init(root) {
             const phone = phoneInput?.value.trim() ?? '';
             const smsAlso = methodBoth?.checked;
 
-            if (method === 'email' && !signer_email) {
+            if (method !== 'sms' && !signer_email) {
                 return setModalStatus(t('fillEmail', 'Rellena tu email.'), true);
             }
             if ((method === 'sms' || smsAlso) && !phone) {
@@ -420,7 +421,13 @@ async function init(root) {
                 if (!res.ok) throw new Error(json.message || `Error ${res.status}`);
                 eventId = json.event_id;
                 if (sentTo) {
-                    sentTo.textContent = method === 'sms' ? phone : signer_email;
+                    if (method === 'sms') {
+                        sentTo.textContent = phone;
+                    } else if (method === 'both') {
+                        sentTo.textContent = `${signer_email} y ${phone}`;
+                    } else {
+                        sentTo.textContent = signer_email;
+                    }
                 }
                 stepData.classList.add('hidden');
                 stepOtp.classList.remove('hidden');
