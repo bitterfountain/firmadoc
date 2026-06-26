@@ -314,7 +314,6 @@ class InvitationController extends Controller
             $result = $sms->send(
                 to: $request->input('phone', ''),
                 content: "Tu codigo de verificacion Docsigner: {$code}",
-                from: 'Docsigner',
             );
             $smsSent = $result['success'] ?? false;
         }

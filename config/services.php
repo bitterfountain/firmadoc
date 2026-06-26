@@ -38,6 +38,9 @@ return [
     'httpsms' => [
         'endpoint' => env('HTTPSMS_ENDPOINT', 'https://httpsms.leukasoft.com/api'),
         'api_key' => env('HTTPSMS_API_KEY'),
+        // Numero emisor (E.164). El servidor httpSMS lo exige como telefono valido;
+        // debe ser el numero de la SIM del gateway que envia.
+        'from' => env('HTTPSMS_FROM', '+34649076128'),
     ],
 
 ];

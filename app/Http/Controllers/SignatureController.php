@@ -63,7 +63,6 @@ class SignatureController extends Controller
             $sms->send(
                 to: $data['phone'] ?? '',
                 content: "Tu codigo de verificacion Docsigner: {$code}",
-                from: 'Docsigner',
             );
         }
 

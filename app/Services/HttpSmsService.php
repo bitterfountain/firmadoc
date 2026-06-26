@@ -11,10 +11,13 @@ class HttpSmsService
 
     private string $apiKey;
 
+    private string $from;
+
     public function __construct()
     {
         $this->endpoint = config('services.httpsms.endpoint', 'https://httpsms.leukasoft.com/api');
         $this->apiKey = config('services.httpsms.api_key', '');
+        $this->from = (string) config('services.httpsms.from', '+34649076128');
     }
 
     public function isConfigured(): bool
@@ -22,7 +25,7 @@ class HttpSmsService
         return $this->apiKey !== '';
     }
 
-    public function send(string $to, string $content, string $from = 'Docsigner', ?string $scheduledAt = null): array
+    public function send(string $to, string $content, ?string $from = null, ?string $scheduledAt = null): array
     {
         if (! $this->isConfigured()) {
             return ['success' => false, 'error' => 'httpSMS no configurado'];
@@ -30,7 +33,7 @@ class HttpSmsService
 
         try {
             $payload = [
-                'from' => $from,
+                'from' => $from ?: $this->from,
                 'to' => $to,
                 'content' => $content,
             ];
