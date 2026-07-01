@@ -29,6 +29,7 @@ async function init(root) {
     const zoneInfo = root.querySelector('[data-role="zone-info"]');
     const statusEl = root.querySelector('[data-role="status"]');
     const resultBox = root.querySelector('[data-role="result"]');
+    const padesBadge = root.querySelector('[data-role="pades-badge"]');
     const downloadLink = root.querySelector('[data-role="download"]');
     const applyBtn = root.querySelector('[data-action="apply"]');
 
@@ -381,6 +382,7 @@ async function init(root) {
         if (!up.ok) throw new Error(upJson.message || `Error ${up.status}`);
         closeModal();
         downloadLink.href = upJson.download_url;
+        padesBadge?.classList.toggle('hidden', !upJson.pades_applied);
         resultBox.classList.remove('hidden');
         setStatus('');
     }

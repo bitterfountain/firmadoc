@@ -489,6 +489,7 @@ class InvitationController extends Controller
         return response()->json([
             'ok' => true,
             'all_signed' => $allSigned,
+            'pades_applied' => $padesApplied,
             'download_url' => $this->downloadUrl($document),
         ]);
     }

@@ -118,6 +118,7 @@
 
                 <div data-role="result" class="hidden rounded-2xl border border-accent/20 bg-accent-soft p-5 text-center">
                     <p class="text-sm font-semibold text-accent">{{ __('¡Documento firmado!') }}</p>
+                    <p data-role="pades-badge" class="hidden mx-auto mt-2 inline-block rounded-full px-2.5 py-0.5 text-[11px] font-semibold" style="color:var(--color-gold);background:rgba(176,135,56,0.12)">{{ __('PAdES · sellado criptográfico') }}</p>
                     <a data-role="download" href="#" class="btn btn-primary mt-3 px-4 py-2 text-xs">{{ __('Descargar PDF firmado') }}</a>
                 </div>
 
