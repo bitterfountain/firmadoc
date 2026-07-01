@@ -153,6 +153,45 @@ class SignatureFlowTest extends TestCase
         $this->assertNotSame('signed', $doc->status);
     }
 
+    public function test_direct_sign_skips_otp_when_owner_has_certificate(): void
+    {
+        Storage::fake('local');
+        Mail::fake();
+
+        $this->user->update(['signing_cert' => base64_encode('dummy-p12-bytes')]);
+        $doc = $this->uploadReadyDocument();
+
+        $this->postJson(route('documents.signDirect', $doc))
+            ->assertOk()
+            ->assertJsonPath('audit.signer_name', $this->user->name)
+            ->assertJsonPath('audit.verification_method', 'certificate')
+            ->assertJsonStructure(['event_id', 'audit' => ['reference', 'document_hash']]);
+
+        $event = SignatureEvent::firstOrFail();
+        $this->assertSame('verified', $event->status);
+        $this->assertNotNull($event->verified_at);
+
+        Mail::assertNothingSent();
+
+        $signed = UploadedFile::fake()->createWithContent('signed.pdf', $this->pdfBytes());
+        $this->post(route('documents.storeSigned', $doc), [
+            'event_id' => $event->id,
+            'signed' => $signed,
+        ])->assertOk()->assertJsonPath('ok', true);
+
+        $doc->refresh();
+        $this->assertSame('signed', $doc->status);
+    }
+
+    public function test_direct_sign_rejected_without_certificate(): void
+    {
+        Storage::fake('local');
+
+        $doc = $this->uploadReadyDocument();
+
+        $this->postJson(route('documents.signDirect', $doc))->assertForbidden();
+    }
+
     public function test_audit_page_lists_events(): void
     {
         Storage::fake('local');

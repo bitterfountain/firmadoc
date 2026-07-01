@@ -17,6 +17,7 @@ async function init(root) {
     const saveUrl = root.dataset.saveUrl;
     const otpUrl = root.dataset.otpUrl;
     const otpVerifyUrl = root.dataset.otpVerifyUrl;
+    const signDirectUrl = root.dataset.signDirectUrl || '';
     const csrf = document.querySelector('meta[name="csrf-token"]').content;
     const L = window.__signLang || {};
     const t = (key, fallback) => L[key] ?? fallback;
@@ -362,9 +363,33 @@ async function init(root) {
 
     applyBtn.addEventListener('click', () => {
         if (!signatures.length) return setStatus(t('placeOne', 'Coloca al menos una firma en el documento.'), true);
+        if (signDirectUrl) return doDirectSign();
         openModal();
     });
     modal.querySelector('[data-action="modal-close"]').addEventListener('click', closeModal);
+
+    // Ya autenticado + certificado propio: nos saltamos el modal de OTP entero.
+    if (signDirectUrl) {
+        applyBtn.textContent = t('certSignBtn', '3 · Firmar con tu certificado');
+        if (applyHint) applyHint.textContent = t('certHint', 'Ya verificado por tu cuenta y tu certificado propio: firma directa, sin código.');
+    }
+
+    async function doDirectSign() {
+        applyBtn.disabled = true;
+        setStatus(t('signing', 'Firmando e incrustando certificado...'));
+        try {
+            const res = await postJson(signDirectUrl, {});
+            const json = await res.json();
+            if (!res.ok) throw new Error(json.message || `Error ${res.status}`);
+            const signedBytes = await buildSignedPdf(json.audit);
+            await uploadSigned(signedBytes, { event_id: json.event_id });
+        } catch (err) {
+            console.error(err);
+            setStatus(err.message, true);
+        } finally {
+            applyBtn.disabled = false;
+        }
+    }
 
     // Incrusta firmas + certificado ya hechos y sube el PDF firmado.
     async function uploadSigned(signedBytes, extra = {}) {
@@ -573,9 +598,12 @@ async function init(root) {
         ];
 
         const isSms = audit.verification_method === 'sms';
+        const isCert = audit.verification_method === 'certificate';
 
         if (isSms && audit.phone) {
             rows.push([t('cPhoneVer', 'Telefono verificado (SMS)'), audit.phone]);
+        } else if (isCert && audit.signer_email) {
+            rows.push([t('cAccountVerified', 'Cuenta verificada'), audit.signer_email]);
         } else if (!audit.level0 && audit.signer_email) {
             rows.push([t('cEmailVer', 'Email verificado'), audit.signer_email]);
         } else if (audit.signer_email) {
@@ -601,6 +629,8 @@ async function init(root) {
             footer = t('cFooter0', 'Documento firmado con FirmaDoc. Firma electronica simple (firma visual + sello de integridad SHA-256), sin verificacion de identidad.');
         } else if (isSms) {
             footer = t('cFooterSms', 'Documento firmado con FirmaDoc. Firma electronica simple con verificacion de identidad por SMS.');
+        } else if (isCert) {
+            footer = t('cFooterCert', 'Documento firmado con FirmaDoc. Firma electronica avanzada: firmante autenticado en su cuenta y documento sellado con su certificado de firma (PAdES).');
         } else {
             footer = t('cFooter1', 'Documento firmado con FirmaDoc. Firma electronica simple con verificacion de identidad por email.');
         }
