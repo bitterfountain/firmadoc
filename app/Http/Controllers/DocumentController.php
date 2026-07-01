@@ -108,12 +108,7 @@ class DocumentController extends Controller
                 ->with('error', __('Ese documento no está listo para firmar.'));
         }
 
-        return view('documents.sign', [
-            'document' => $document,
-            // Si ya tienes certificado propio cargado, tu sesion + certificado ya
-            // son la prueba de identidad: nos saltamos el paso de OTP por email/SMS.
-            'skipOtp' => auth()->user()->hasSigningCert(),
-        ]);
+        return view('documents.sign', compact('document'));
     }
 
     /** Devuelve el PDF normalizado (para previsualizar con PDF.js). */

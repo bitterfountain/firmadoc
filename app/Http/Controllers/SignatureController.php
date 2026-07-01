@@ -12,7 +12,6 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Mail;
-use Illuminate\Support\Str;
 use Throwable;
 
 class SignatureController extends Controller
@@ -68,54 +67,6 @@ class SignatureController extends Controller
         }
 
         return response()->json(['event_id' => $event->id]);
-    }
-
-    /**
-     * Firma directa del propietario cuando ya tiene certificado propio cargado:
-     * la sesion autenticada + el certificado son la prueba de identidad, asi que
-     * nos saltamos el paso de OTP y verificamos el evento al vuelo.
-     */
-    public function signDirect(Request $request, Document $document): JsonResponse
-    {
-        abort_unless($document->user_id === auth()->id(), 403);
-        abort_unless($document->isReadyToSign() || $document->status === 'signed', 404);
-        abort_unless(auth()->user()->hasSigningCert(), 403);
-
-        $work = $this->tempWorkDir();
-        try {
-            $localPdf = $work.DIRECTORY_SEPARATOR.'original.pdf';
-            $this->pullToLocal($document->pdf_path, $localPdf);
-            $originalHash = hash_file('sha256', $localPdf);
-        } finally {
-            $this->cleanupTemp($work);
-        }
-
-        $event = SignatureEvent::create([
-            'document_id' => $document->id,
-            'signer_name' => auth()->user()->name,
-            'signer_email' => auth()->user()->email,
-            'ip_address' => $request->ip(),
-            'user_agent' => substr((string) $request->userAgent(), 0, 512),
-            'otp_hash' => Hash::make(Str::random(40)),
-            'otp_expires_at' => now(),
-            'verification_method' => 'certificate',
-            'verified_at' => now(),
-            'original_sha256' => $originalHash,
-            'status' => 'verified',
-        ]);
-
-        return response()->json([
-            'event_id' => $event->id,
-            'audit' => [
-                'reference' => $event->reference,
-                'signer_name' => $event->signer_name,
-                'signer_email' => $event->signer_email,
-                'verified_at_human' => $event->verified_at->format('d/m/Y H:i:s').' UTC',
-                'ip_address' => $event->ip_address,
-                'document_hash' => $originalHash,
-                'verification_method' => 'certificate',
-            ],
-        ]);
     }
 
     /** Paso 2: verificamos el OTP y devolvemos los datos de auditoria. */
@@ -214,13 +165,8 @@ class SignatureController extends Controller
                 try {
                     $sealedAbs = $work.DIRECTORY_SEPARATOR.'sealed.pdf';
                     $override = $this->ownerCertOverride($document, $work);
-                    $reason = match ($event->verification_method) {
-                        'sms' => 'Firma electronica con verificacion de identidad por SMS',
-                        'certificate' => 'Firma electronica avanzada: sesion autenticada y certificado propio',
-                        default => 'Firma electronica con verificacion de identidad por email',
-                    };
                     $pades->sign($signedAbs, $sealedAbs, [
-                        'reason' => $reason,
+                        'reason' => 'Firma electronica con verificacion de identidad por email',
                         'name' => $event->signer_name,
                     ], $override);
                     $finalAbs = $sealedAbs;

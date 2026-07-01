@@ -81,7 +81,6 @@ Route::middleware(['auth', EnsureProActive::class])->group(function () {
     Route::controller(SignatureController::class)->prefix('documents/{document}')->name('documents.')->group(function () {
         Route::post('/otp', 'requestOtp')->middleware('throttle:6,1')->name('otp');
         Route::post('/otp/verify', 'verifyOtp')->middleware('throttle:10,1')->name('otpVerify');
-        Route::post('/sign-direct', 'signDirect')->middleware('throttle:10,1')->name('signDirect');
         Route::post('/signed', 'finalize')->name('storeSigned');
     });
 

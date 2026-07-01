@@ -12,9 +12,6 @@
         $headerTitle ??= $document->original_name;
         $signerName ??= null;
         $signerEmail ??= null;
-        $skipOtp ??= false;
-        // Solo tiene sentido si hay $document (no aplica a invitados ni quicksign).
-        $signDirectUrl ??= $skipOtp ? route('documents.signDirect', $document) : null;
 
         // Textos para los mensajes que sign.js inserta dinámicamente (ya traducidos).
         $L = [
@@ -51,10 +48,6 @@
             'cCount' => __('Número de firmas incrustadas'),
             'cFooter0' => __('Documento firmado con FirmaDoc. Firma electrónica simple (firma visual + sello de integridad SHA-256), sin verificación de identidad.'),
             'cFooter1' => __('Documento firmado con FirmaDoc. Firma electrónica simple con verificación de identidad por email.'),
-            'cFooterCert' => __('Documento firmado con FirmaDoc. Firma electrónica avanzada: firmante autenticado en su cuenta y documento sellado con su certificado de firma (PAdES).'),
-            'cAccountVerified' => __('Cuenta verificada'),
-            'certHint' => __('Ya verificado por tu cuenta y tu certificado propio: firma directa, sin código.'),
-            'certSignBtn' => __('3 · Firmar con tu certificado'),
         ];
     @endphp
 
@@ -65,7 +58,6 @@
          data-save-url="{{ $saveUrl }}"
          data-otp-url="{{ $otpUrl }}"
          data-otp-verify-url="{{ $otpVerifyUrl }}"
-         data-sign-direct-url="{{ $signDirectUrl }}"
          data-index-url="{{ $backUrl }}"
          class="select-none">
 
