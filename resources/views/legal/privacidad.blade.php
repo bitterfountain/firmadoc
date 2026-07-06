@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title', __('Política de privacidad') . ' · FirmaDoc')
+@section('title', __('Política de privacidad') . ' · Subsigno')
 
 @section('content')
     <article class="mx-auto max-w-2xl">

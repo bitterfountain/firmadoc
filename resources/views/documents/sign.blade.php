@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title', __('Firmar') . ' · FirmaDoc')
+@section('title', __('Firmar') . ' · Subsigno')
 
 @section('content')
     @php
@@ -46,8 +46,8 @@
             'cIp' => __('Dirección IP'),
             'cHash' => __('Hash SHA-256 del documento'),
             'cCount' => __('Número de firmas incrustadas'),
-            'cFooter0' => __('Documento firmado con FirmaDoc. Firma electrónica simple (firma visual + sello de integridad SHA-256), sin verificación de identidad.'),
-            'cFooter1' => __('Documento firmado con FirmaDoc. Firma electrónica simple con verificación de identidad por email.'),
+            'cFooter0' => __('Documento firmado con Subsigno. Firma electrónica simple (firma visual + sello de integridad SHA-256), sin verificación de identidad.'),
+            'cFooter1' => __('Documento firmado con Subsigno. Firma electrónica simple con verificación de identidad por email.'),
         ];
     @endphp
 

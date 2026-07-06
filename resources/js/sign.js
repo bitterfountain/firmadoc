@@ -598,11 +598,11 @@ async function init(root) {
 
         let footer;
         if (audit.level0) {
-            footer = t('cFooter0', 'Documento firmado con FirmaDoc. Firma electronica simple (firma visual + sello de integridad SHA-256), sin verificacion de identidad.');
+            footer = t('cFooter0', 'Documento firmado con Subsigno. Firma electronica simple (firma visual + sello de integridad SHA-256), sin verificacion de identidad.');
         } else if (isSms) {
-            footer = t('cFooterSms', 'Documento firmado con FirmaDoc. Firma electronica simple con verificacion de identidad por SMS.');
+            footer = t('cFooterSms', 'Documento firmado con Subsigno. Firma electronica simple con verificacion de identidad por SMS.');
         } else {
-            footer = t('cFooter1', 'Documento firmado con FirmaDoc. Firma electronica simple con verificacion de identidad por email.');
+            footer = t('cFooter1', 'Documento firmado con Subsigno. Firma electronica simple con verificacion de identidad por email.');
         }
         page.drawText(footer, { x: 50, y: 56, size: 8, font, color: muted, maxWidth: 495, lineHeight: 11 });
     }

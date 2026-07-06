@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title', __('Tu invitación') . ' · FirmaDoc Pro')
+@section('title', __('Tu invitación') . ' · Subsigno Pro')
 
 @section('content')
     @php
@@ -22,7 +22,7 @@
         </span>
 
         <p class="eyebrow mt-6">{{ __('Invitación') }}</p>
-        <h1 class="mt-2 text-3xl leading-tight text-ink">{{ __('Te han invitado a') }}<br><em class="font-normal italic text-accent">FirmaDoc&nbsp;Pro</em></h1>
+        <h1 class="mt-2 text-3xl leading-tight text-ink">{{ __('Te han invitado a') }}<br><em class="font-normal italic text-accent">Subsigno&nbsp;Pro</em></h1>
         <p class="mx-auto mt-3 max-w-sm text-[15px] leading-relaxed text-muted">
             {!! __('Activa <strong class="text-ink">:label</strong> de cuenta profesional, <strong class="text-ink">gratis</strong>. Sin tarjeta, sin compromiso.', ['label' => $label]) !!}
         </p>

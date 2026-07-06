@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title', __('Solicitar acceso Pro') . ' · FirmaDoc')
+@section('title', __('Solicitar acceso Pro') . ' · Subsigno')
 
 @section('content')
     <div class="mx-auto mt-8 max-w-md">

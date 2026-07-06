@@ -12,4 +12,4 @@ Para dejar constancia de que has presenciado las firmas, confirma en este enlace
     {{ $confirmUrl }}
 @endif
 
--- FirmaDoc
+-- Subsigno

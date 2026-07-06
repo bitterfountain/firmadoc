@@ -1,7 +1,7 @@
 {
     "Salir": "Log out",
     "Firma electrónica": "Electronic signature",
-    "FirmaDoc · Firma electrónica de documentos": "FirmaDoc · Electronic document signing",
+    "Subsigno · Firma electrónica de documentos": "Subsigno · Electronic document signing",
     "Aviso legal": "Legal notice",
     "Privacidad": "Privacy",
     "Legal": "Legal",
@@ -153,8 +153,8 @@
     "Dirección IP": "IP address",
     "Hash SHA-256 del documento": "Document SHA-256 hash",
     "Número de firmas incrustadas": "Number of embedded signatures",
-    "Documento firmado con FirmaDoc. Firma electrónica simple (firma visual + sello de integridad SHA-256), sin verificación de identidad.": "Signed with FirmaDoc. Simple electronic signature (visual signature + SHA-256 integrity seal), without identity verification.",
-    "Documento firmado con FirmaDoc. Firma electrónica simple con verificación de identidad por email.": "Signed with FirmaDoc. Simple electronic signature with email identity verification.",
+    "Documento firmado con Subsigno. Firma electrónica simple (firma visual + sello de integridad SHA-256), sin verificación de identidad.": "Signed with Subsigno. Simple electronic signature (visual signature + SHA-256 integrity seal), without identity verification.",
+    "Documento firmado con Subsigno. Firma electrónica simple con verificación de identidad por email.": "Signed with Subsigno. Simple electronic signature with email identity verification.",
 
     "Orden de firma": "Signing order",
     ":signed de :total firmado(s)": ":signed of :total signed",
@@ -185,7 +185,7 @@
     "Demasiados intentos. Solicita un código nuevo.": "Too many attempts. Request a new code.",
     "Código incorrecto.": "Incorrect code.",
     "Tu cuenta profesional ha caducado. Solicita una renovación.": "Your professional account has expired. Please request a renewal.",
-    "¡Bienvenido a FirmaDoc Pro! Tu cuenta profesional está activa.": "Welcome to FirmaDoc Pro! Your professional account is active.",
+    "¡Bienvenido a Subsigno Pro! Tu cuenta profesional está activa.": "Welcome to Subsigno Pro! Your professional account is active.",
     "No se pudo convertir el documento: :error": "The document could not be converted: :error",
     "Ese documento no está listo para firmar.": "That document is not ready to sign.",
     "Documento eliminado.": "Document deleted.",

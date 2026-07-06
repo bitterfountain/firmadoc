@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title', __('Mi certificado') . ' · FirmaDoc')
+@section('title', __('Mi certificado') . ' · Subsigno')
 
 @section('content')
     <div class="mx-auto max-w-lg">

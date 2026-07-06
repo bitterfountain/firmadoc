@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title', __('Documento multi-firmante') . ' · FirmaDoc')
+@section('title', __('Documento multi-firmante') . ' · Subsigno')
 
 @section('content')
     <div class="mb-5">

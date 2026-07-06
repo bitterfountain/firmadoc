@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title', __('Invitación no válida') . ' · FirmaDoc')
+@section('title', __('Invitación no válida') . ' · Subsigno')
 
 @section('content')
     <div class="card mx-auto mt-10 max-w-md p-10 text-center">

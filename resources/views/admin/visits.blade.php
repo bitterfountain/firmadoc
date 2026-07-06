@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title', __('Visitas') . ' · FirmaDoc')
+@section('title', __('Visitas') . ' · Subsigno')
 
 @section('content')
     @php

@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title', __('Aviso legal') . ' · FirmaDoc')
+@section('title', __('Aviso legal') . ' · Subsigno')
 
 @section('content')
     <article class="mx-auto max-w-2xl">
@@ -17,7 +17,7 @@
             @if (app()->getLocale() === 'en')
                 <section>
                     <h2 class="text-lg text-ink">1. Site owner</h2>
-                    <p class="mt-2">In compliance with applicable information duties, the owner of <strong class="text-ink">firmadoc.leukasoft.com</strong> ("the Site" or "FirmaDoc") is:</p>
+                    <p class="mt-2">In compliance with applicable information duties, the owner of <strong class="text-ink">subsigno.leukasoft.com</strong> ("the Site" or "Subsigno") is:</p>
                     <ul class="mt-2 space-y-1">
                         <li><strong class="text-ink">Owner:</strong> Antonio Sánchez Fernández</li>
                         <li><strong class="text-ink">Tax ID (NIF):</strong> 33499597M</li>
@@ -28,12 +28,12 @@
                 </section>
                 <section>
                     <h2 class="text-lg text-ink">2. Purpose</h2>
-                    <p class="mt-2">FirmaDoc is a platform to sign documents electronically. It offers a <strong class="text-ink">quick signature</strong> (simple electronic signature, no account) and, for registered users, an <strong class="text-ink">advanced signature</strong> with cryptographic sealing (PAdES) and, where applicable, a timestamp.</p>
+                    <p class="mt-2">Subsigno is a platform to sign documents electronically. It offers a <strong class="text-ink">quick signature</strong> (simple electronic signature, no account) and, for registered users, an <strong class="text-ink">advanced signature</strong> with cryptographic sealing (PAdES) and, where applicable, a timestamp.</p>
                 </section>
                 <section>
                     <h2 class="text-lg text-ink">3. Nature of the service and signature level</h2>
                     <ul class="mt-2 space-y-2">
-                        <li>FirmaDoc <strong class="text-ink">is not a qualified trust service provider</strong> (QTSP) under Regulation (EU) 910/2014 (eIDAS).</li>
+                        <li>Subsigno <strong class="text-ink">is not a qualified trust service provider</strong> (QTSP) under Regulation (EU) 910/2014 (eIDAS).</li>
                         <li>The <strong class="text-ink">quick signature</strong> is a <strong class="text-ink">simple electronic signature without identity verification</strong> (handwritten-style signature + SHA-256 integrity seal). It is admissible as evidence but with limited probative value; the parties must assess its suitability.</li>
                         <li>The <strong class="text-ink">advanced signature (PAdES)</strong> provides integrity and authorship indications and, if enabled, a timestamp. A <strong class="text-ink">qualified signature (QES)</strong> is only achieved using a qualified certificate issued by a QTSP.</li>
                         <li>The owner <strong class="text-ink">does not guarantee</strong> the service is suitable for acts requiring a specific legal form. Users must verify this.</li>
@@ -62,7 +62,7 @@
             @else
                 <section>
                     <h2 class="text-lg text-ink">1. Titular del sitio</h2>
-                    <p class="mt-2">En cumplimiento del deber de información, se hacen constar los datos del titular de <strong class="text-ink">firmadoc.leukasoft.com</strong> (en adelante, «el Sitio» o «FirmaDoc»):</p>
+                    <p class="mt-2">En cumplimiento del deber de información, se hacen constar los datos del titular de <strong class="text-ink">subsigno.leukasoft.com</strong> (en adelante, «el Sitio» o «Subsigno»):</p>
                     <ul class="mt-2 space-y-1">
                         <li><strong class="text-ink">Titular:</strong> Antonio Sánchez Fernández</li>
                         <li><strong class="text-ink">NIF:</strong> 33499597M</li>
@@ -73,12 +73,12 @@
                 </section>
                 <section>
                     <h2 class="text-lg text-ink">2. Objeto</h2>
-                    <p class="mt-2">FirmaDoc es una plataforma que permite firmar electrónicamente documentos. Ofrece una <strong class="text-ink">firma rápida</strong> (firma electrónica simple, sin registro) y, para usuarios registrados, <strong class="text-ink">firma avanzada</strong> con sellado criptográfico (PAdES) y, en su caso, sellado de tiempo.</p>
+                    <p class="mt-2">Subsigno es una plataforma que permite firmar electrónicamente documentos. Ofrece una <strong class="text-ink">firma rápida</strong> (firma electrónica simple, sin registro) y, para usuarios registrados, <strong class="text-ink">firma avanzada</strong> con sellado criptográfico (PAdES) y, en su caso, sellado de tiempo.</p>
                 </section>
                 <section>
                     <h2 class="text-lg text-ink">3. Naturaleza del servicio y nivel de firma</h2>
                     <ul class="mt-2 space-y-2">
-                        <li>FirmaDoc <strong class="text-ink">no es un prestador cualificado de servicios de confianza</strong> (QTSP) en el sentido del Reglamento (UE) 910/2014 (eIDAS).</li>
+                        <li>Subsigno <strong class="text-ink">no es un prestador cualificado de servicios de confianza</strong> (QTSP) en el sentido del Reglamento (UE) 910/2014 (eIDAS).</li>
                         <li>La <strong class="text-ink">firma rápida</strong> es una <strong class="text-ink">firma electrónica simple sin verificación de identidad</strong> (firma manuscrita digitalizada + sello de integridad SHA-256). Es admisible como prueba, pero con valor probatorio limitado; corresponde a las partes valorar su idoneidad.</li>
                         <li>La <strong class="text-ink">firma avanzada (PAdES)</strong> aporta integridad e indicios de autoría y, si se activa, sello de tiempo. La <strong class="text-ink">firma cualificada (QES)</strong> solo se alcanza empleando un certificado cualificado emitido por un QTSP.</li>
                         <li>El titular <strong class="text-ink">no garantiza</strong> que el servicio sea idóneo para actos que exijan una forma legal específica. Es responsabilidad del usuario comprobarlo.</li>

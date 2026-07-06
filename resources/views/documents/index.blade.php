@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title', __('Mis documentos') . ' · FirmaDoc')
+@section('title', __('Mis documentos') . ' · Subsigno')
 
 @section('content')
     <div class="grid gap-6 md:grid-cols-[1fr_1.4fr]">

@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title', __('Firma rápida') . ' · FirmaDoc')
+@section('title', __('Firma rápida') . ' · Subsigno')
 
 @section('content')
     <div class="mx-auto mt-6 max-w-lg">

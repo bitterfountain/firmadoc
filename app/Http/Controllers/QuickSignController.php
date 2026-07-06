@@ -173,10 +173,10 @@ class QuickSignController extends Controller
                 $name = pathinfo($meta['original_name'], PATHINFO_FILENAME).'-firmado.pdf';
                 $ref = $data['reference'] ?? '';
                 Mail::raw(
-                    'Adjuntamos tu documento firmado con FirmaDoc.'.($ref ? "\n\nReferencia: {$ref}" : ''),
+                    'Adjuntamos tu documento firmado con Subsigno.'.($ref ? "\n\nReferencia: {$ref}" : ''),
                     function ($m) use ($data, $bytes, $name) {
                         $m->to($data['email'], $data['signer_name'] ?? null)
-                            ->subject('Tu documento firmado · FirmaDoc')
+                            ->subject('Tu documento firmado · Subsigno')
                             ->attachData($bytes, $name, ['mime' => 'application/pdf']);
                     }
                 );

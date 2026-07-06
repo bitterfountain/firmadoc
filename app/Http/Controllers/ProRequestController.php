@@ -33,7 +33,7 @@ class ProRequestController extends Controller
             $body = "Nueva solicitud de cuenta Pro:\n{$data['email']}"
                 .(! empty($data['name']) ? " ({$data['name']})" : '')
                 .(! empty($data['message']) ? "\n\n{$data['message']}" : '');
-            Mail::raw($body, fn ($m) => $m->to('info@leukasoft.com')->subject('FirmaDoc · solicitud de cuenta Pro'));
+            Mail::raw($body, fn ($m) => $m->to('info@leukasoft.com')->subject('Subsigno · solicitud de cuenta Pro'));
         } catch (Throwable $e) {
             report($e);
         }
@@ -54,9 +54,9 @@ class ProRequestController extends Controller
         try {
             $url = $invite->url();
             Mail::raw(
-                "Te invitamos a activar tu cuenta profesional de FirmaDoc (gratis, 1 año):\n{$url}",
+                "Te invitamos a activar tu cuenta profesional de Subsigno (gratis, 1 año):\n{$url}",
                 fn ($m) => $m->to($proRequest->email, $proRequest->name)
-                    ->subject('Tu invitación a FirmaDoc Pro')
+                    ->subject('Tu invitación a Subsigno Pro')
             );
             $sent = true;
         } catch (Throwable $e) {

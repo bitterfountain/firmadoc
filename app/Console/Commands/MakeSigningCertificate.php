@@ -7,8 +7,8 @@ use Illuminate\Console\Command;
 class MakeSigningCertificate extends Command
 {
     protected $signature = 'docsigner:make-cert
-                            {--cn=FirmaDoc Signing : Common Name del certificado}
-                            {--org=FirmaDoc : Organizacion}
+                            {--cn=Subsigno Signing : Common Name del certificado}
+                            {--org=Subsigno : Organizacion}
                             {--country=ES : Codigo de pais}
                             {--days=3650 : Validez en dias}
                             {--force : Sobrescribir si ya existe}';

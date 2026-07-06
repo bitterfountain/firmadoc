@@ -4,7 +4,7 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
     <meta name="csrf-token" content="{{ csrf_token() }}">
-    <title>@yield('title', 'FirmaDoc')</title>
+    <title>@yield('title', 'Subsigno')</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,500;0,9..144,600;1,9..144,400&family=Hanken+Grotesk:wght@300;400;500;600;700&display=swap" rel="stylesheet">
@@ -21,7 +21,7 @@
                         <path d="M14.5 6.5l3 3"/>
                     </svg>
                 </span>
-                <span class="text-lg font-semibold tracking-tight text-ink" style="font-family:var(--font-display)">FirmaDoc</span>
+                <span class="text-lg font-semibold tracking-tight text-ink" style="font-family:var(--font-display)">Subsigno</span>
             </a>
 
             <div class="flex items-center gap-4">
@@ -71,7 +71,7 @@
     </main>
 
     <footer class="mx-auto flex max-w-5xl flex-wrap items-center justify-between gap-2 px-5 pb-10 pt-4">
-        <p class="text-xs text-faint">{{ __('FirmaDoc · Firma electrónica de documentos') }}</p>
+        <p class="text-xs text-faint">{{ __('Subsigno · Firma electrónica de documentos') }}</p>
         <nav class="flex items-center gap-4 text-xs text-faint">
             <a href="{{ route('legal.aviso') }}" class="transition-colors hover:text-ink">{{ __('Aviso legal') }}</a>
             <a href="{{ route('legal.privacy') }}" class="transition-colors hover:text-ink">{{ __('Privacidad') }}</a>

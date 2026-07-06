@@ -58,6 +58,6 @@ class InviteController extends Controller
         $request->session()->regenerate();
 
         return redirect()->route('documents.index')
-            ->with('status', __('¡Bienvenido a FirmaDoc Pro! Tu cuenta profesional está activa.'));
+            ->with('status', __('¡Bienvenido a Subsigno Pro! Tu cuenta profesional está activa.'));
     }
 }

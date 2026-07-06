@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title', $document->original_name . ' · FirmaDoc')
+@section('title', $document->original_name . ' · Subsigno')
 
 @section('content')
     <div class="card mx-auto mt-8 max-w-2xl p-8">
