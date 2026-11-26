@@ -18,9 +18,9 @@
                 <section>
                     <h2 class="text-lg text-ink">1. Data controller</h2>
                     <ul class="mt-2 space-y-1">
-                        <li><strong class="text-ink">Controller:</strong> Antonio Sánchez Fernández</li>
-                        <li><strong class="text-ink">Tax ID (NIF):</strong> 33499597M</li>
-                        <li><strong class="text-ink">Address:</strong> C/ María García Ferrández 30, Bajo Izq, 03201 Elche (Alicante), Spain</li>
+                        <li><strong class="text-ink">Controller:</strong> <span data-legal="name" style="opacity:.6;font-style:italic">(shown in a few seconds)</span></li>
+                        <li><strong class="text-ink">Tax ID (NIF):</strong> <span data-legal="nif" style="opacity:.6;font-style:italic">(shown in a few seconds)</span></li>
+                        <li><strong class="text-ink">Address:</strong> <span data-legal="address_en" style="opacity:.6;font-style:italic">(shown in a few seconds)</span></li>
                         <li><strong class="text-ink">Contact:</strong> info@leukasoft.com</li>
                     </ul>
                 </section>
@@ -79,9 +79,9 @@
                 <section>
                     <h2 class="text-lg text-ink">1. Responsable del tratamiento</h2>
                     <ul class="mt-2 space-y-1">
-                        <li><strong class="text-ink">Responsable:</strong> Antonio Sánchez Fernández</li>
-                        <li><strong class="text-ink">NIF:</strong> 33499597M</li>
-                        <li><strong class="text-ink">Domicilio:</strong> C/ María García Ferrández 30, Bajo Izq, 03201 Elche (Alicante)</li>
+                        <li><strong class="text-ink">Responsable:</strong> <span data-legal="name" style="opacity:.6;font-style:italic">(se muestra en unos segundos)</span></li>
+                        <li><strong class="text-ink">NIF:</strong> <span data-legal="nif" style="opacity:.6;font-style:italic">(se muestra en unos segundos)</span></li>
+                        <li><strong class="text-ink">Domicilio:</strong> <span data-legal="address_es" style="opacity:.6;font-style:italic">(se muestra en unos segundos)</span></li>
                         <li><strong class="text-ink">Contacto:</strong> info@leukasoft.com</li>
                     </ul>
                 </section>
@@ -140,3 +140,7 @@
         </div>
     </article>
 @endsection
+
+@push('scripts')
+    <script src="{{ asset('js/legal-data.js') }}?v=20261126" defer></script>
+@endpush

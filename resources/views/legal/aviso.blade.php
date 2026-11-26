@@ -19,9 +19,9 @@
                     <h2 class="text-lg text-ink">1. Site owner</h2>
                     <p class="mt-2">In compliance with applicable information duties, the owner of <strong class="text-ink">subsigno.leukasoft.com</strong> ("the Site" or "Subsigno") is:</p>
                     <ul class="mt-2 space-y-1">
-                        <li><strong class="text-ink">Owner:</strong> Antonio Sánchez Fernández</li>
-                        <li><strong class="text-ink">Tax ID (NIF):</strong> 33499597M</li>
-                        <li><strong class="text-ink">Address:</strong> C/ María García Ferrández 30, Bajo Izq, 03201 Elche (Alicante), Spain</li>
+                        <li><strong class="text-ink">Owner:</strong> <span data-legal="name" style="opacity:.6;font-style:italic">(shown in a few seconds)</span></li>
+                        <li><strong class="text-ink">Tax ID (NIF):</strong> <span data-legal="nif" style="opacity:.6;font-style:italic">(shown in a few seconds)</span></li>
+                        <li><strong class="text-ink">Address:</strong> <span data-legal="address_en" style="opacity:.6;font-style:italic">(shown in a few seconds)</span></li>
                         <li><strong class="text-ink">Phone:</strong> 651 189 269</li>
                         <li><strong class="text-ink">Contact email:</strong> info@leukasoft.com</li>
                     </ul>
@@ -64,9 +64,9 @@
                     <h2 class="text-lg text-ink">1. Titular del sitio</h2>
                     <p class="mt-2">En cumplimiento del deber de información, se hacen constar los datos del titular de <strong class="text-ink">subsigno.leukasoft.com</strong> (en adelante, «el Sitio» o «Subsigno»):</p>
                     <ul class="mt-2 space-y-1">
-                        <li><strong class="text-ink">Titular:</strong> Antonio Sánchez Fernández</li>
-                        <li><strong class="text-ink">NIF:</strong> 33499597M</li>
-                        <li><strong class="text-ink">Domicilio:</strong> C/ María García Ferrández 30, Bajo Izq, 03201 Elche (Alicante)</li>
+                        <li><strong class="text-ink">Titular:</strong> <span data-legal="name" style="opacity:.6;font-style:italic">(se muestra en unos segundos)</span></li>
+                        <li><strong class="text-ink">NIF:</strong> <span data-legal="nif" style="opacity:.6;font-style:italic">(se muestra en unos segundos)</span></li>
+                        <li><strong class="text-ink">Domicilio:</strong> <span data-legal="address_es" style="opacity:.6;font-style:italic">(se muestra en unos segundos)</span></li>
                         <li><strong class="text-ink">Teléfono:</strong> 651 189 269</li>
                         <li><strong class="text-ink">Correo de contacto:</strong> info@leukasoft.com</li>
                     </ul>
@@ -108,3 +108,7 @@
         </div>
     </article>
 @endsection
+
+@push('scripts')
+    <script src="{{ asset('js/legal-data.js') }}?v=20261126" defer></script>
+@endpush
